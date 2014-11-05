@@ -246,6 +246,8 @@ engines:
           Maya Scene: [reference, import]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
+          Audio: [reference, import]
+          Alembic Cache: [reference, import]
         actions_hook: '{self}/tk-maya_actions.py'
         download_thumbnails: true
         entities:

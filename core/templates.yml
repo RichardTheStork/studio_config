@@ -455,8 +455,8 @@ paths:
     asset_publish_area_maya: '@asset_root_step/publish/maya'
 
     # The location of WIP files[-{name}]
-    # maya_asset_work: '@asset_work_area_maya/{Asset}[-{name}][_{Resolution}]_{Step}_v{version}.ma'
-    maya_asset_work: '@asset_work_area_maya/{Asset}[-{name}]_{Step}_v{version}.ma'
+    maya_asset_work: '@asset_work_area_maya/{Asset}[-{name}][_{Resolution}]_{Step}_v{version}.ma'
+    # maya_asset_work: '@asset_work_area_maya/{Asset}[-{name}]_{Step}_v{version}.ma'
 
     # The location of backups of WIP files
     maya_asset_snapshot: '@asset_root_step/work/maya/snapshots/{Asset}[-{name}]_{Step}_v{version}.{timestamp}.ma'
