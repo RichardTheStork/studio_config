@@ -75,22 +75,25 @@ class ScanSceneHook(Hook):
 		
 		# create the primary item - this will match the primary output 'scene_item_type':            
 		items.append({"type": "work_file", "name": name})
-		AssetReso = flds.get('Resolution')
+		# AssetReso = flds.get('Resolution')
 		print 50*"*"
-		print AssetReso
+		# print AssetReso
 		print 50*"*"
-		if AssetReso is None:
-			# items.append({"type": "setting","name": "High resolution","description": "","selected":True})
-			items.append({"type": "setting_high","name": "High resolution","description": "","selected":False})
-			# items.append({"type": "setting_high","name": "High resolution"})
-			items.append({"type": "setting_low","name": "Low resolution","description": "","selected":False})
-			# items.append({"type": "setting_low","name": "Low resolution"})
+		# if AssetReso is None:
+		# items.append({"type": "setting","name": "High resolution","description": "","selected":True})
+		items.append({"type": "setting_high","name": "High resolution","description": "","selected":False})
+		# items.append({"type": "setting_high","name": "High resolution"})
+		items.append({"type": "setting_low","name": "Low resolution","description": "","selected":False})
+		# items.append({"type": "setting_low","name": "Low resolution"})
+		items.append({"type": "setting_lay","name": "Lay resolution","description": "","selected":False})
+		'''
 		if AssetReso == 'hi':
 			items.append({"type": "setting_high","name": "High resolution","description": "","selected":True})
 			items.append({"type": "setting_low","name": "Low resolution","description": "","selected":False})
 		if AssetReso == 'lo':
 			items.append({"type": "setting_high","name": "High resolution","description": "","selected":False})
 			items.append({"type": "setting_low","name": "Low resolution","description": "","selected":True})
+		'''
 		# if there is any geometry in the scene (poly meshes or nurbs patches), then
 		# add a geometry item to the list:
 		# if cmds.ls(geometry=True, noIntermediate=True):

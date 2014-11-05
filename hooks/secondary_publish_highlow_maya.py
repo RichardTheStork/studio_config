@@ -117,6 +117,7 @@ class PublishHook(Hook):
 
 			set_highres = False
 			set_lowres = False
+			set_layres = False
 			
 			
 			if item["type"] == "setting_high":
@@ -125,18 +126,24 @@ class PublishHook(Hook):
 			if item["type"] == "setting_low":
 				if item["name"]=="Low resolution":
 					set_lowres = True
+			if item["type"] == "setting_lay":
+				if item["name"]=="Lay resolution":
+					set_layres = True
 					
 			if set_highres:
-				flds['Resolution'] = "hi"
+				flds['Resolution'] = "hir"
 			
 			if set_lowres:
-				flds['Resolution'] = "lo"
+				flds['Resolution'] = "low"
+				
+			if set_layres:
+				flds['Resolution'] = "lay"
 				
 			publishpath = maya_asset_publish_template.apply_fields(flds)
 			fldsIncr = copy.deepcopy(flds)
 			fldsIncr['version'] += 1
 			workpath = maya_asset_work_template.apply_fields(fldsIncr)
-			print publishpath
+			# print publishpath
 			cmds.file(rename = publishpath)
 			cmds.file(save=True)
 			cmds.file(rename = workpath)
@@ -146,7 +153,7 @@ class PublishHook(Hook):
 			user = self.parent.context.user
 			
 			sgtk.util.register_publish(tk, ctx, file_to_publish, os.path.basename(file_to_publish) , flds['version'], tank_type= "Maya Scene", created_by= user, user=user,updated_by= user )
-			print "REGISTER OKAY"
+			# print "REGISTER OKAY"
 			# if there is anything to report then add to result
 			if len(errors) > 0:
 				# add result:
