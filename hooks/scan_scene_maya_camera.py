@@ -102,6 +102,8 @@ class ScanSceneHook(Hook):
         unUsedCams = []
         items.append({"type": "setting","name": "NO overscan","description": "set overscan Value to 1(no extra space used)","selected":False})
         items.append({"type": "setting","name": "set Cut in","description": "set Cut in to 1001 for each individual shot","selected":False})
+        if flds['Step'] == 's3d':
+            items.append({"type": "setting","name": "Only render LEFT(main) cam","description": "set Cut in to 1001 for each individual shot","selected":False})
         for sht in shots:
             shotCam = cmds.shot(sht, q=True, currentCamera=True)
             shotCams += [shotCam]
