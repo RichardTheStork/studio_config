@@ -209,9 +209,9 @@ engines:
         display_name: Publish Playblast only
         expand_single_items: true
         hook_copy_file: default
-        hook_post_publish: default
-        hook_primary_pre_publish: default
-        hook_primary_publish: default
+        hook_post_publish: post_skip_publish
+        hook_primary_pre_publish: primary_skip_pre_publish
+        hook_primary_publish: primary_skip_publish
         hook_scan_scene: scan_scene_maya_camera
         hook_secondary_pre_publish: secondary_pre_publish_maya_camera
         hook_secondary_publish: secondary_publish_maya_camera
