@@ -283,6 +283,30 @@ class PublishHook(Hook):
 			
 			return sg_data
 
+
+		def orderShots(shotDictList):
+			valueOrderList = []
+			valueOrderListSecondary = []
+			listIndex = 0
+			for sht in shotDictList:
+				orderNr = str("00000"+str(sht['sg_cut_order']))[-4:]
+				addValue = str(listIndex)
+				if sht['sg_status_list'] == 'omt':
+					addValue = 'omt'
+				if sht['parent_shots'] == []:
+					valueOrderList += [orderNr+">>"+addValue]
+				else:
+					valueOrderListSecondary += [orderNr+">>"+addValue]
+				listIndex += 1
+			valueOrderList = sorted(valueOrderList)+sorted(valueOrderListSecondary)
+			orderedList = []
+			for sht in valueOrderList:
+				addValue = str.split(sht,'>>')[1]
+				if addValue != "omt":
+					orderedList+=[shotDictList[int(addValue)]]
+			return orderedList
+
+
 		shots = cmds.ls(type="shot")
 		shotCams = []
 		unUsedCams = []
@@ -292,7 +316,7 @@ class PublishHook(Hook):
 
 		pbShots = []
 		CutInList = []
-		CutOrderList = []
+		
 		# these booleans can be used for 
 		noOverscan = False
 		resetCutIn = False
@@ -317,7 +341,7 @@ class PublishHook(Hook):
 		# get extra shot info through shotgun
 		fields = ['id']
 		sequence_id = self.parent.shotgun.find('Sequence',[['code', 'is',flds['Sequence'] ]], fields)[0]['id']
-		fields = ['id', 'code', 'sg_asset_type','sg_cut_order','sg_cut_in','sg_cut_out']
+		fields = ['id', 'code', 'sg_asset_type','sg_cut_order','sg_cut_in','sg_cut_out','sg_cut_duration','sg_status_list','parent_shots']
 		filters = [['sg_sequence', 'is', {'type':'Sequence','id':sequence_id}]]
 		assets= self.parent.shotgun.find("Shot",filters,fields)
 		results = []
@@ -336,10 +360,6 @@ class PublishHook(Hook):
 					shot_from_shotgun = str.split(sht['code'],"_")[1]
 					if shot_from_shotgun == shotTask:
 						CutInList += [sht['sg_cut_in']]
-
-						orderNr = str("00000"+str(sht['sg_cut_order']))[-4:]
-						CutOrderList += [orderNr+"->" + shotTask]
-			CutOrderList.sort()
 			
 			# set extra settings
 			if item["type"] == "setting":
@@ -556,10 +576,19 @@ class PublishHook(Hook):
 
 				pbMovFile =  str.split(str(pbMovPath),os.path.dirname(pbMovPath))[1][1:]
 
+				# movList = []
+				# for mov in os.listdir(os.path.dirname(pbPathCurrentMov)):
+				# 	movList += [os.path.dirname(pbPathCurrentMov)+"/"+mov]
+				# print movList
+
+				assetsOrdered = orderShots(assets)
 				movList = []
-				for mov in os.listdir(os.path.dirname(pbPathCurrentMov)):
-					movList += [os.path.dirname(pbPathCurrentMov)+"/"+mov]
-				print movList
+				for ass in assetsOrdered:
+					for mov in os.listdir(os.path.dirname(pbPathCurrentMov)):
+						movName = str.split(str(mov),".")[0]
+						if ass['code'] == movName:
+							movList += [os.path.dirname(pbPathCurrentMov)+"/"+mov]
+
 
 				makeSeqMov = True
 				if makeSeqMov:
