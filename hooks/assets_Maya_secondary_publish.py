@@ -132,8 +132,8 @@ class PublishHook(Hook):
 		# fields needs : '@asset_root_step/work/maya/{Asset}_{Step}_v{version}.ma'
 		fields = {"sg_asset_type": assetType, "Asset":assetName, "Step":"mod", "version":version}
 		#TEST TD RESOLUTION
-		# if 'Resolution' not in item:
-			# fields["Resolution"]="lay"
+		if 'Resolution' not in item:
+			fields["Resolution"]="lay"
 		# create the publish path by applying the fields 
 		# with the publish template:
 		model_workfile_path = work_template.apply_fields(fields)
