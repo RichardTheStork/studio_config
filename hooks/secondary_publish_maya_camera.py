@@ -169,7 +169,9 @@ class PublishHook(Hook):
 						print("AUDIO FILE NOT FOUND :  " + str(mediaFile))
 						# results.append({"task":"audio stuff", "errors":("AUDIO FILE NOT FOUND :  " + str(mediaFile))})
 			if mediaFilePresent:
-				command = os.path.normpath(ffmpeg_path + ' -f concat -i '+mediaListFile+' -c copy '+output + " -y")
+				# command = os.path.normpath(ffmpeg_path + ' -f concat -i '+mediaListFile+' -c copy '+output + " -y")
+				# command = os.path.normpath(ffmpeg_path + ' -f concat -r 24 -i '+mediaListFile+' -vcodec mjpeg -r 24 -qscale 1 -pix_fmt yuvj420p -acodec pcm_s16le -ar 48000 -ac 2 '+output + " -y")
+				command = os.path.normpath(ffmpeg_path + ' -f concat -r 24 -i '+mediaListFile+' -vcodec mjpeg -r 24 -qscale 1 -pix_fmt yuvj420p '+output + " -y")
 				command = str.replace(str(command), "\\" , "/")
 				#print command
 				value = subprocess.call(command, creationflags=CREATE_NO_WINDOW, shell=False)
@@ -605,17 +607,13 @@ class PublishHook(Hook):
 					print "Making mov and mp4: \n", pbMovPath, ' --- ', pbMp4Path
 					print combineMediaFiles(movList,pbMovPath,concatTxt,ffmpegPath)
 					print ffmpeg.ffmpegMakingMovie(pbMovPath,pbMp4Path,encodeOptions="libx264",ffmpegPath=ffmpegPath)
-			
+							
 					# ----------------------------------------------
 					# UPLOAD MP4
 					# ----------------------------------------------
+					
 					upload = True
 					if upload:
-						SERVER_PATH = 'https://rts.shotgunstudio.com'
-						SCRIPT_USER = 'AutomateStatus_TD'
-						SCRIPT_KEY = '8119086c65905c39a5fd8bb2ad872a9887a60bb955550a8d23ca6c01a4d649fb'
-
-						sg = sgtk.api.shotgun.Shotgun(SERVER_PATH, SCRIPT_USER, SCRIPT_KEY)
 						user = self.parent.context.user
 						scenePath = cmds.file(q=True,sceneName=True)
 						ctx = self.parent.tank.context_from_path(scenePath)
@@ -631,9 +629,9 @@ class PublishHook(Hook):
 								'sg_task': ctx.step
 								}
 
-						result = sg.create('Version', data)
+						result = tk.shotgun.create('Version', data)
 						print "---> UPLOADING ",pbMp4Path
-						executed = sg.upload("Version",result['id'],pbMp4Path,'sg_uploaded_movie')
+						executed = tk.shotgun.upload("Version",result['id'],pbMp4Path,'sg_uploaded_movie')
 						print executed
 				
 					# PUBLISH
@@ -648,7 +646,7 @@ class PublishHook(Hook):
 					else:
 						print "SKIPPED PUBLISH"
 				
-
+					
 				# print "TODO : make mov of whole sequence with audio"
 		return results
 
