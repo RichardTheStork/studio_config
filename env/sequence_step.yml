@@ -286,6 +286,11 @@ engines:
           filters:
           - [project, is, '{context.project}']
           hierarchy: [sg_asset_type, code]
+        - caption: Sequences
+          entity_type: Sequence
+          filters:
+          - [project, is, '{context.project}']
+          hierarchy: [code]
         - caption: Shots
           entity_type: Shot
           filters:
