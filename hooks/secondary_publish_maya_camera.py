@@ -510,6 +510,8 @@ class PublishHook(Hook):
 						EndPartName = '%04d' % i + RenderPath.split( '%04d' )[-1]
 						ImageFullName = FirstPartName + EndPartName
 						pbFileCurrent = pbPathCurrent+"."+EndPartName
+						print 'fld ===>',flds
+						print 'USER===>',USER
 						ffmpeg.ffmpegMakingSlates(inputFilePath= ImageFullName, outputFilePath= ImageFullName, topleft = flds ['Sequence']+"_"+flds['Step']+"_v"+str('%03d' % (flds['version'])), topmiddle = Film, topright = str(int(CutIn))+"-"+str('%04d' %(i-int(shotStart)+CutIn))+"-"+str('%04d' %(int(shotEnd)-int(shotStart)+CutIn))+"  "+str('%04d' %(i-int(shotStart)+1))+"-"+str('%04d' %(int(shotEnd)-int(shotStart)+1)), bottomleft = shotName+" - focal_Length "+ str(focal), bottommiddle = USER['name'], bottomright = todaystr , ffmpegPath =ffmpegPath, font = "C:/Windows/Fonts/arial.ttf"  )
 						print("COPYING PNG "+ImageFullName+"  TO  "+pbFileCurrent+"  FOR SHOT  " + shotName)
 						shutil.copy2(ImageFullName, pbFileCurrent)

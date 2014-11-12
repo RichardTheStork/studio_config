@@ -286,7 +286,7 @@ paths:
 
     maya_shot_render_publish_mov: '@shot_render_root/publish/{Shot}[-{name}][_{channel}]_v{version}.mov'
     maya_shot_render_work_mov: '@shot_render_root/work/{Shot}[-{name}][_{channel}]_v{version}.mov'
-    maya_shot_render_review_mp4: '@shot_render_root/review/{Shot}[-{name}][_{channel}]_v{version}.mp4'
+    #maya_shot_render_review_mp4: '@shot_render_root/review/{Shot}[-{name}][_{channel}]_v{version}.mp4'
 
     
     
