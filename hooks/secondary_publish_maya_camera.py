@@ -403,6 +403,13 @@ class PublishHook(Hook):
 
 		#Get USER
 		USER = sgtk.util.get_current_user(tk)
+		if USER == None:
+			USER = {'email': 'rnd@walkingthedog.be',
+			 'id': 63,
+			 'image': 'https://sg-media-usor-01.s3.amazonaws.com/7df0575d53fc3b61c36343837da18effb72bb6ff/86f714413d0a2c68382b706e8e45991d41a0ffed/thumb_t.jpg?AWSAccessKeyId=AKIAIFHY52V77FIVWKLQ&Expires=1415784134&Signature=%2Ff4qeNQMq4oHscIKePb1IrtRPZQ%3D',
+			 'login': 'rnd',
+			 'name': 'WTD RND',
+			 'type': 'HumanUser'}
 
 		ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
 		if "ffmpeg.exe" not in ffmpegPath:
