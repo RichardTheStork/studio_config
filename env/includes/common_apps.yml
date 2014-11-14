@@ -46,8 +46,8 @@ workfiles-launch-at-startup:
   hook_filter_publishes: default
   hook_filter_work_files: default
   hook_scene_operation: default
-  launch_at_startup: true
-  launch_change_work_area_at_startup: false
+  launch_at_startup: false
+  launch_change_work_area_at_startup: true
   location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
   saveas_default_name: scene
   saveas_prefer_version_up: false
