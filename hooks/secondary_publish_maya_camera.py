@@ -274,7 +274,7 @@ class PublishHook(Hook):
 			"""
 			ctx = self.parent.tank.context_from_path(str(path))
 			# construct args:
-			args = {"tk": self.parent.tank,"sg_status_list": "cmpt","context": context,"comment": comment,"path": path,"name": name,"version_number": publish_version,"thumbnail_path": thumbnail_path,"task": sg_task,"published_file_type":tank_type,"user": ctx.user,"created_by": ctx.user}
+			args = {"tk": self.parent.tank,"sg_status_list": "cmpt","context": context,"comment": comment,"path": path,"name": name,"version_number": publish_version,"thumbnail_path": thumbnail_path,"sg_task": sg_task,"published_file_type":tank_type,"user": ctx.user,"created_by": ctx.user}
 			print "-------------------"
 			for a in args:
 				print a , args[a]
@@ -318,6 +318,7 @@ class PublishHook(Hook):
 
 		pbShots = []
 		CutInList = []
+		parentShotList = []
 		
 		# these booleans can be used for 
 		noOverscan = False
@@ -362,6 +363,7 @@ class PublishHook(Hook):
 					shot_from_shotgun = str.split(sht['code'],"_")[1]
 					if shot_from_shotgun == shotTask:
 						CutInList += [sht['sg_cut_in']]
+						parentShotList += [sht['parent_shots']]
 			
 			# set extra settings
 			if item["type"] == "setting":
@@ -452,6 +454,7 @@ class PublishHook(Hook):
 			RenderPath = ""
 			for pbShot in pbShots:
 				CutIn = CutInList[j]
+				parentShot = str.split(parentShotList[j][0]['name'],"_")[-1]
 				j += 1
 				
 				sequenceName = flds ['Sequence']
@@ -526,13 +529,15 @@ class PublishHook(Hook):
 					shotAudio = audio_template.apply_fields(flds)
 					shotAudio = findLastVersion(os.path.dirname(shotAudio),True,True)
 					if shotAudio == 0:
-						print " NO AUDIO FOUND "
-						try:
-							audio = cmds.shot(pbShot,q=True,audio=True)
-							shotAudio = '"'+cmds.getAttr(audio+".filename")+'"'
-							print "used audio from maya :  ", shotAudio
-						except:
-							shotAudio = ''
+						print " NO PUBLISHED AUDIO FOUND"
+						for aud in [parentShot,pbShot]:
+							try:
+								audio = cmds.shot(pbShot,q=True,audio=True)
+								shotAudio = '"'+cmds.getAttr(audio+".filename")+'"'
+								shotAudio = str.replace(str(shotAudio),"Z:/Richard The Stork/",'W:/RTS/')
+								print "used audio from maya :  ", shotAudio
+							except:
+								shotAudio = ''
 					print ffmpeg.ffmpegMakingMovie(inputFilePath=renderPathCurrent, outputFilePath=pbPathCurrentMov, audioPath=shotAudio, start_frame=int(shotStart),end_frame=int(shotEnd), framerate=24 , encodeOptions='libx264',ffmpegPath=ffmpegPath)
 				# end_frame=shotEnd
 				cmds.shot(pbShot, e=True, currentCamera=previewCam)
@@ -626,6 +631,8 @@ class PublishHook(Hook):
 						user = self.parent.context.user
 						scenePath = cmds.file(q=True,sceneName=True)
 						ctx = self.parent.tank.context_from_path(scenePath)
+						fields = ['id']
+						sg_task = self.parent.shotgun.find("Task",[['content', 'is',ctx.step['name']],["entity",'is',ctx.entity]], fields)
 						
 						data = {'project': {'type':'Project','id':66},
 								'entity': {'type':'Sequence', 'id':int(sequence_id)},
@@ -635,20 +642,21 @@ class PublishHook(Hook):
 								'user': user,
 								'created_by': user,
 								'updated_by': user,
-								'sg_task': ctx.step
+								'sg_task': sg_task[0]
 								}
 
+						if not os.path.exists(os.path.dirname(pbMp4Path)):
+							os.makedirs(os.path.dirname(pbMp4Path))
+						
 						result = tk.shotgun.create('Version', data)
 						print "---> UPLOADING ",pbMp4Path
 						executed = tk.shotgun.upload("Version",result['id'],pbMp4Path,'sg_uploaded_movie')
 						print executed
 				
 					# PUBLISH
-					fields = ['id']
-					sg_task = self.parent.shotgun.find("Task",[['content', 'is',ctx.step['name']],["entity",'is',ctx.entity]], fields)
 					if sg_task != []:
 						version = findLastVersion(os.path.dirname(pbMovPath))
-						sg_task = sg_task[0]
+						#sg_task = sg_task[0]
 						print sg_task
 						_register_publish(pbMovPath,pbMovFile,sg_task,version,"Movie", "published playblast mov","",ctx)
 						print "PUBLISHED"
