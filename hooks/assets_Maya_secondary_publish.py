@@ -2,7 +2,7 @@ import os
 import shutil
 import maya.cmds as cmds
 import maya.mel as mel
-
+import maya.OpenMaya as om
 import tank
 from tank import Hook
 from tank import TankError
@@ -148,12 +148,19 @@ class PublishHook(Hook):
 			raise TankError("The published file named '%s' already exists!" % model_publish_path)
 
 		# Do all the resetting transformations/saving/exporting and other stuff...
+		
+		uninstance()
+		deleteUnusedGroups()
+		RenameUnistanced()
+		
 		tempChildren = cmds.listRelatives(objectName, allDescendents = False, children = True, shapes = False, path = True)
 		if objectName in tempChildren:
 			tempChildren.remove(objectName)
 		cmds.select(tempChildren, hierarchy=True, add=False)
 		sel=cmds.ls(selection=True, excludeType = "transform")
 		cmds.select(sel)
+		
+		
 		
 		tempPos, tempRot, tempScl = getTransform(objectName)
 		setTransform(objectName)
@@ -171,23 +178,32 @@ class PublishHook(Hook):
 			self.parent.ensure_folder_exists(workfile_folder)
 			
 			tk = self.parent.tank
-			# print 'implement the export of object :', assetName
+			print 'implement the export of object :', assetName
 			
-			# print 'Make group and put meshes in it...'
+			print 'Make group and put meshes in it...'
+			# groupName = 'GRP_%s' %(objectName)
 			groupName = 'GRP_%s' %(assetName)
 			groupName = cmds.group( name = groupName, world = True)
 			
-			# print 'Unparenting meshes for export'
+			print 'Unparenting meshes for export'
 			# tempChildObjects = cmds.parent(groupName, world = True)
 			
-			# print 'exporting meshes'
+			print 'exporting meshes'
 			cmds.select(groupName, hierarchy=True, add=False)
 			returnName = cmds.file(model_publish_path, type='mayaAscii', exportSelected = True)
 			returnWorkName = cmds.file(model_workfile_path, type='mayaAscii', exportSelected = True)
 			progress_cb(45)
 			
+			for objChild in sel:
+				objChildSelName= objChild.split('|')[-1]
+				
 			print 'parenting meshes again...'
-			cmds.parent(sel, objectName)
+			print sel
+			print objectName
+			print groupName
+			cmds.parent(groupName+'|'+objChildSelName, objectName)
+			# cmds.parent(sel, objectName)
+			# cmds.parent(groupName, objectName)
 			cmds.delete(groupName)
 			print 'export done...'
 			
@@ -337,4 +353,42 @@ def getTransform(objName):
 	scl = [cmds.getAttr("%s.scaleX" %objName),cmds.getAttr("%s.scaleY" %objName),cmds.getAttr("%s.scaleZ" %objName)]
 
 	return pos, rot, scl
+
+def getInstances():
+	instances = []
+	iterDag = om.MItDag(om.MItDag.kBreadthFirst)
+	while not iterDag.isDone():
+		instanced = om.MItDag.isInstanced(iterDag)
+		if instanced:
+			instances.append(iterDag.fullPathName())
+		iterDag.next()
+	return instances
 	
+def uninstance():
+	instances = getInstances()
+	for i in instances:
+		if cmds.objExists(i):
+			if cmds.objectType(i) != "mesh":
+				parenttmp = cmds.listRelatives(i, parent=True, fullPath=True)
+				parentname = str(parenttmp)
+				currName = i.split('|')[-2]
+				cmds.duplicate(parenttmp,n=currName+"tmpToRename")
+				cmds.delete(parenttmp)
+				instances = getInstances()
+
+def deleteUnusedGroups():
+	instances = getInstances()
+	for i in instances:
+		if cmds.objExists(i):
+			if cmds.objectType(i) != "mesh":
+				try:
+					cmds.delete(i)
+				except:
+					None
+
+def RenameUnistanced():
+	AllScene = cmds.ls()
+	for i in AllScene:
+		if cmds.objExists(i):
+			if cmds.objectType(i) != "mesh" and 'tmpToRename' in i:
+					cmds.rename( i, i.split('tmpToRename')[0] )
