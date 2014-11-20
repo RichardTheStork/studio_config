@@ -454,7 +454,8 @@ class PublishHook(Hook):
 			RenderPath = ""
 			for pbShot in pbShots:
 				CutIn = CutInList[j]
-				parentShot = str.split(parentShotList[j][0]['name'],"_")[-1]
+				if parentShotList[j] != []:
+					parentShot = str.split(parentShotList[j][0]['name'],"_")[-1]
 				j += 1
 				
 				sequenceName = flds ['Sequence']
@@ -620,8 +621,15 @@ class PublishHook(Hook):
 					"""
 					print "Making mov and mp4: \n", pbMovPath, ' --- ', pbMp4Path
 					print combineMediaFiles(movList,pbMovPath,concatTxt,ffmpegPath)
+					
+					amount = 0
+					while not os.path.exists(pbMovPath) and amount < 10:
+						time.sleep(1)
+						amount += 1
+						
 					print ffmpeg.ffmpegMakingMovie(pbMovPath,pbMp4Path,encodeOptions="libx264",ffmpegPath=ffmpegPath)
 							
+						
 					# ----------------------------------------------
 					# UPLOAD MP4
 					# ----------------------------------------------
