@@ -29,19 +29,19 @@ CREATE_NO_WINDOW  = 0x00000008
 class PublishHook(Hook):
 	"""
 	Single hook that implements publish functionality for secondary tasks
-	"""    
+	"""	
 	def execute(self, tasks, work_template, comment, thumbnail_path, sg_task, primary_task, primary_publish_path, progress_cb, **kwargs):
 		"""
 		Main hook entry point
-		:param tasks:                   List of secondary tasks to be published.  Each task is a 
+		:param tasks:				   List of secondary tasks to be published.  Each task is a 
 										dictionary containing the following keys:
 										{
 											item:   Dictionary
 													This is the item returned by the scan hook 
 													{   
-														name:           String
-														description:    String
-														type:           String
+														name:		   String
+														description:	String
+														type:		   String
 														other_params:   Dictionary
 													}
 												   
@@ -49,41 +49,41 @@ class PublishHook(Hook):
 													This is the output as defined in the configuration - the 
 													primary output will always be named 'primary' 
 													{
-														name:             String
+														name:			 String
 														publish_template: template
-														tank_type:        String
+														tank_type:		String
 													}
 										}
 						
-		:param work_template:           template
+		:param work_template:		   template
 										This is the template defined in the config that
 										represents the current work file
 			   
-		:param comment:                 String
+		:param comment:				 String
 										The comment provided for the publish
 						
-		:param thumbnail:               Path string
+		:param thumbnail:			   Path string
 										The default thumbnail provided for the publish
 						
-		:param sg_task:                 Dictionary (shotgun entity description)
-										The shotgun task to use for the publish    
+		:param sg_task:				 Dictionary (shotgun entity description)
+										The shotgun task to use for the publish	
 						
-		:param primary_publish_path:    Path string
+		:param primary_publish_path:	Path string
 										This is the path of the primary published file as returned
 										by the primary publish hook
 						
-		:param progress_cb:             Function
+		:param progress_cb:			 Function
 										A progress callback to log progress during pre-publish.  Call:
 										
 											progress_cb(percentage, msg)
 											 
 										to report progress to the UI
 						
-		:param primary_task:            The primary task that was published by the primary publish hook.  Passed
+		:param primary_task:			The primary task that was published by the primary publish hook.  Passed
 										in here for reference.  This is a dictionary in the same format as the
 										secondary tasks above.
 		
-		:returns:                       A list of any tasks that had problems that need to be reported 
+		:returns:					   A list of any tasks that had problems that need to be reported 
 										in the UI.  Each item in the list should be a dictionary containing 
 										the following keys:
 										{
@@ -96,7 +96,7 @@ class PublishHook(Hook):
 													}
 													
 											errors: List
-													A list of error messages (strings) to report    
+													A list of error messages (strings) to report	
 										}
 		"""
 		def FindFirstImageOfSequence(FolderPath):
@@ -160,7 +160,9 @@ class PublishHook(Hook):
 					if os.path.exists(mediaFile):
 						mediaFilePresent = True
 						#print mediaFile
-						shotPath = str.split(str(mediaFile),"Sequences")[1][1:]
+						shotPath = str.split(str(mediaFile),"/")[-1]
+						if 'Sequences' in mediaFile:
+							shotPath = str.split(str(mediaFile),"Sequences")[1][1:]
 						if concatTxt != None:
 							shotPath = str.split(str(mediaFile),os.path.dirname(concatTxt))[1][1:]
 						mediaTxtFile.write("file '" +shotPath+"'")
@@ -308,6 +310,139 @@ class PublishHook(Hook):
 					orderedList+=[shotDictList[int(addValue)]]
 			return orderedList
 
+		def checkSoundCut():
+			allShots = cmds.ls(type="shot")
+			allAudio = cmds.ls(type="audio")
+			sequenceList = []
+			for seqShot in allShots:
+				#print "---", seqShot
+				shotStart =  int(cmds.getAttr(seqShot +".sequenceStartFrame"))
+				shotEnd  =   int(cmds.getAttr(seqShot +".sequenceEndFrame"))
+				#print shotStart
+				#print shotEnd
+				sequenceList.append({"shot": seqShot})
+				audioList = []
+				audioIn = []
+				audioOut = []
+				for aud in allAudio:
+					
+					add = False
+					aIn = 0
+					aOut= 0
+					audioStart   =  int(cmds.getAttr(aud+".offset" ))
+					audioEnd = int(cmds.getAttr(aud+".endFrame"))-1
+					audioOriginalDuration = int(cmds.getAttr(aud+".duration"))
+					audioDuration  =  audioEnd-audioStart
+					
+						
+					if shotStart < audioStart < shotEnd:
+						add = True
+						if audioEnd > shotEnd:
+							aOut = shotEnd - audioStart
+					if shotStart < audioEnd < shotEnd:
+						add = True
+						aIn = audioDuration-(audioEnd-shotStart)
+					if audioStart < shotEnd < audioEnd:
+						add = True
+						aOut = audioDuration-(audioEnd-shotEnd)+1
+					
+					if add:
+						audioList.append([aud,aIn,aOut])
+
+				sequenceList[-1]["audioList"] = audioList
+			
+			tmpFolder = "C:/temp"
+			scenePath = cmds.file(q=True,sceneName=True)
+			scene_template = tk.template_from_path(scenePath)
+			audio_template = tk.templates["shot_published_audio"]
+			flds = scene_template.get_fields(scenePath)
+			flds['Step'] = 'snd'
+			soundCheckList = ["These audio cuts dont match the camera cuts."]
+			for audio in sequenceList:
+				if audio['audioList'] != []:
+					#print audio['shot']
+					flds['Shot'] = flds['Sequence']+"_"+str(audio['shot'])
+					i=0
+					newAudio =[]
+					soundCheckList += [""]
+					soundCheckList += ["audio files overlapping shot " + audio['shot']]
+					for aud in audio['audioList']:
+						inSec = float(aud[1])/24
+						outSec = float(aud[2])/24
+						print aud[0],inSec,outSec
+						# print "------>>>>>>>>>", aud
+						soundCheckList += [aud[0] +"   cut in offset = "+ str(aud[1]) +"   cut out offset = "+ str(aud[2])]
+
+			return sequenceList
+		def MakeSoundCuts(ffmpegPath,Input,Output,Position,Duration ):
+			time01= Position
+			time02= Duration
+			if os.path.exists(os.path.dirname(Output)):
+				os.remove(Output)
+			subprocess.call('%s -i "%s" -ss "%s" -t "%s" -acodec copy "%s"' %(ffmpegPath,Input,time01,time02,Output))
+		def fixSound(sequenceList):
+			tmpFolder = "C:/temp"
+			scenePath = cmds.file(q=True,sceneName=True)
+			scene_template = tk.template_from_path(scenePath)
+			audio_template = tk.templates["shot_published_audio"]
+			flds = scene_template.get_fields(scenePath)
+			flds['Step'] = 'snd'
+			for audio in sequenceList:
+				if audio['audioList'] != []:
+					print audio['shot']
+					flds['Shot'] = flds['Sequence']+"_"+str(audio['shot'])
+					i=0
+					newAudio =[]
+					for aud in audio['audioList']:
+						inSec = float(aud[1])/24
+						outSec = float(aud[2])/24
+						print aud[0],inSec,outSec
+						if outSec == 0.0:
+							outSec = 10000
+						input = cmds.getAttr(aud[0]+'.filename')
+						output = tmpFolder+"/"+audio['shot']+"_part"+str(i)+str.split(str(input),"/")[-1]
+						i+=1
+						MakeSoundCuts(ffmpegPath,input,output,inSec,outSec)
+						newAudio +=[output]
+					audioOutput = audio_template.apply_fields(flds)
+					
+					# version UP
+					latestVersion = findLastVersion(os.path.dirname(audioOutput))+1
+					flds['version'] = latestVersion
+					audioOutput = audio_template.apply_fields(flds)
+					# combine
+					mergedAudio = combineMediaFiles(newAudio,audioOutput,tmpFolder+"/tmp_wavList.txt",ffmpegPath)
+					
+					ver = str(findLastVersion(os.path.dirname(audioOutput),True))
+					newAudioName = str.rsplit(ver,"_",1)[0]
+					cmds.file( audioOutput, i=True, type="audio",mergeNamespacesOnClash=False, namespace=flds['Shot']+"_audio",resetError=True)
+					crappyAudioName = str.split(ver,".")[0]
+					cmds.rename(crappyAudioName,newAudioName)
+					cutIn = cmds.getAttr(audio['shot']+".startFrame")
+					cutOut = cmds.getAttr(audio['shot']+".endFrame")
+					cutDuration = cutOut-cutIn
+					cmds.setAttr(newAudioName+".offset", cutIn)
+					cmds.setAttr(newAudioName+".sourceEnd",cutDuration)
+					cmds.connectAttr(newAudioName+".message", audio['shot']+".audio",f=True)
+					print "-----------------------------------------------------------------------------________________-------------------------------------------------------------------------"
+					# PUBLISH
+					file_template = tk.template_from_path(audioOutput)
+					flds = file_template.get_fields(audioOutput)
+					ctx = tk.context_from_path(audioOutput)
+					sg_task = tk.shotgun.find("Task",[['content', 'is',"Sound"],["entity",'is',ctx.entity]], ['id'])[0]
+					if sg_task != []:
+						_register_publish(audioOutput,newAudioName,sg_task,flds['version'],"Audio", "publish","",ctx)
+					else:
+						print "SKIPPED - are the folders already created on shotgun??"
+						#popup('error',"skipped creation of "+newAudioName+" - are the folders already created on shotgun??")
+
+			for audio in sequenceList:
+				if audio['audioList'] != []:
+					for aud in audio['audioList']:
+						if cmds.objExists(aud[0]):
+							print "------------------",aud[0],"------------------------"
+							cmds.delete(aud[0])
+
 
 		shots = cmds.ls(type="shot")
 		shotCams = []
@@ -348,6 +483,14 @@ class PublishHook(Hook):
 		filters = [['sg_sequence', 'is', {'type':'Sequence','id':sequence_id}]]
 		assets= self.parent.shotgun.find("Shot",filters,fields)
 		results = []
+
+		ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
+		if "ffmpeg.exe" not in ffmpegPath:
+			ffmpegPath += "\\ffmpeg.exe"
+		ffmpegPath += '"'
+		soundFixList = checkSoundCut()
+		print soundFixList
+		fixSound(soundFixList)
 
 		for task in tasks:
 			item = task["item"]
@@ -412,11 +555,6 @@ class PublishHook(Hook):
 			 'login': 'rnd',
 			 'name': 'WTD RND',
 			 'type': 'HumanUser'}
-
-		ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
-		if "ffmpeg.exe" not in ffmpegPath:
-			ffmpegPath += "\\ffmpeg.exe"
-		ffmpegPath += '"'
 
 
 		# audio stuff
@@ -614,7 +752,9 @@ class PublishHook(Hook):
 						# os.makedirs(os.path.dirname(pbMovPath))
 					
 					if not os.path.exists(os.path.dirname(pbMp4Path)):
-						self.parent.ensure_folder_exists(os.path.dirname(pbMovPath))
+						print "creating", pbMp4Path
+						self.parent.ensure_folder_exists(os.path.dirname(pbMp4Path))
+						print "created", pbMp4Path
 						# os.makedirs(os.path.dirname(pbMp4Path))
 					"""
 						SEQUENCE MOV and MP4 Creation

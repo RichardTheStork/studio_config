@@ -89,12 +89,13 @@ class ScanSceneHook(Hook):
         # get shotgun info about what shot are needed in this sequence
         fields = ['id']
         sequence_id = self.parent.shotgun.find('Sequence',[['code', 'is',flds['Sequence']]], fields)[0]['id']
-        fields = ['id', 'code', 'sg_asset_type','sg_cut_in','sg_cut_out']
+        fields = ['id', 'code', 'sg_asset_type','sg_cut_in','sg_cut_out','sg_status_list']
         filters = [['sg_sequence', 'is', {'type':'Sequence','id':sequence_id}]]
         assets= self.parent.shotgun.find("Shot",filters,fields)
         sg_shots=[]
         for sht in assets:
-            sg_shots += [str.split(sht['code'],"_")[1]]
+            if sht['sg_status_list'] != 'omt':
+                sg_shots += [str.split(sht['code'],"_")[1]]
 
         # define used cameras and shots in the camera sequencer
         shots = cmds.ls(type="shot")
