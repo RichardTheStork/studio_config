@@ -352,6 +352,9 @@ class PublishHook(Hook):
 				sequenceList[-1]["audioList"] = audioList
 			
 			tmpFolder = "C:/temp"
+			if not os.path.exists(tmpFolder):
+				os.makedirs(tmpFolder)
+
 			scenePath = cmds.file(q=True,sceneName=True)
 			scene_template = tk.template_from_path(scenePath)
 			audio_template = tk.templates["shot_published_audio"]
@@ -382,6 +385,8 @@ class PublishHook(Hook):
 			subprocess.call('%s -i "%s" -ss "%s" -t "%s" -acodec copy "%s"' %(ffmpegPath,Input,time01,time02,Output))
 		def fixSound(sequenceList):
 			tmpFolder = "C:/temp"
+			if not os.path.exists(tmpFolder):
+				os.makedirs(tmpFolder)
 			scenePath = cmds.file(q=True,sceneName=True)
 			scene_template = tk.template_from_path(scenePath)
 			audio_template = tk.templates["shot_published_audio"]
