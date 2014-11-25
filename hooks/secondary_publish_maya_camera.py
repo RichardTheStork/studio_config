@@ -380,7 +380,7 @@ class PublishHook(Hook):
 		def MakeSoundCuts(ffmpegPath,Input,Output,Position,Duration ):
 			time01= Position
 			time02= Duration
-			if os.path.exists(os.path.dirname(Output)):
+			if os.path.isfile(Output):
 				os.remove(Output)
 			subprocess.call('%s -i "%s" -ss "%s" -t "%s" -acodec copy "%s"' %(ffmpegPath,Input,time01,time02,Output))
 		def fixSound(sequenceList):
