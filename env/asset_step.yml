@@ -353,18 +353,21 @@ engines:
         target_resolution_shortname: hir
         # location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-saveas', type: dev}
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: dev}
+          type: git, version: v0.0.0}
       wtd-multi-saveas-lo:
         display_name: Save as Low
         target_resolution: low
         target_resolution_shortname: lor
         # location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-saveas', type: dev}
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: dev}
+          type: git, version: v0.0.0}
       wtd-multi-saveas-lay:
         display_name: Save as Lay
         target_resolution: lay
         target_resolution_shortname: lay
         # location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-saveas', type: dev}
-        location: {path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: dev}
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: dev},
+          type: git, version: v0.0.0}
       wtd-multi-turntable:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-turntable.git',
           type: git, version: v0.0.6}
