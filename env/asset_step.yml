@@ -69,7 +69,7 @@ engines:
         launch_at_startup: false
         launch_change_work_area_at_startup: false
         location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
-        saveas_default_name: ""
+        saveas_default_name: ''
         saveas_prefer_version_up: false
         sg_entity_type_extra_display_fields: {}
         sg_entity_type_filters: {}
@@ -124,7 +124,7 @@ engines:
         launch_at_startup: false
         launch_change_work_area_at_startup: false
         location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
-        saveas_default_name: ""
+        saveas_default_name: ''
         saveas_prefer_version_up: false
         sg_entity_type_extra_display_fields: {}
         sg_entity_type_filters: {}
@@ -224,19 +224,20 @@ engines:
         location: {name: tk-maya-breakdown, type: app_store, version: v0.3.0}
       tk-maya-playblast:
         current_scene_template: maya_asset_work
-        height: 936 
-        location: {path: 'https://github.com/RichardTheStork/tk-maya-playblast.git',
-          type: git, version: v0.0.2, disabled: false}
+        height: 936
+        location: {disabled: false, path: 'https://github.com/RichardTheStork/tk-maya-playblast.git',
+          type: git, version: v0.0.2}
         playblast_template: maya_asset_render_playblast
         width: 1724
       tk-multi-about: '@about'
       tk-multi-loader2:
         action_mappings:
+          Audio: [reference, import]
           Maya Scene: [reference, import]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
-          Audio: [reference, import]
         actions_hook: '{self}/tk-maya_actions.py'
+        # actions_hook: 'wtd-maya_actions'
         download_thumbnails: true
         entities:
         - caption: Assets
@@ -303,19 +304,19 @@ engines:
         primary_publish_template: maya_asset_publish
         primary_scene_item_type: work_file
         primary_tank_type: Maya Scene
-        secondary_outputs: 
-        - {description: level of detail lay, display_group: Lay, display_name: Lay resolution
-                   , icon: icons/3d_model.png, name: Lay resolution, publish_template: maya_asset_publish,
-                  required: false, scene_item_type: setting_lay, selected: false, tank_type: Maya Scene
-            Cache}
-        - {description: level of detail high, display_group: High, display_name: High resolution
-                   , icon: icons/3d_model.png, name: High resolution, publish_template: maya_asset_publish,
-                  required: false, scene_item_type: setting_high, selected: false, tank_type: Maya Scene
-            Cache}
-        - {description: level of detail low, display_group: Low, display_name: Low resolution
-                   , icon: icons/3d_model.png, name: Low resolution, publish_template: maya_asset_publish,
-                  required: false, scene_item_type: setting_low, selected: false, tank_type: Maya Scene
-            Cache}
+        secondary_outputs:
+        - {description: level of detail lay, display_group: Lay, display_name: Lay
+            resolution, icon: icons/3d_model.png, name: Lay resolution, publish_template: maya_asset_publish,
+          required: false, scene_item_type: setting_lay, selected: false, tank_type: Maya
+            Scene Cache}
+        - {description: level of detail high, display_group: High, display_name: High
+            resolution, icon: icons/3d_model.png, name: High resolution, publish_template: maya_asset_publish,
+          required: false, scene_item_type: setting_high, selected: false, tank_type: Maya
+            Scene Cache}
+        - {description: level of detail low, display_group: Low, display_name: Low
+            resolution, icon: icons/3d_model.png, name: Low resolution, publish_template: maya_asset_publish,
+          required: false, scene_item_type: setting_low, selected: false, tank_type: Maya
+            Scene Cache}
         template_work: maya_asset_work
       tk-multi-screeningroom: '@launch_screeningroom'
       tk-multi-snapshot:
@@ -346,13 +347,24 @@ engines:
         template_publish_area: asset_publish_area_maya
         template_work: maya_asset_work
         template_work_area: asset_work_area_maya
+      wtd-multi-saveas-hi:
+        display_name: Save as High
+        target_resolution: high
+        target_resolution_shortname: hir
+        location: { path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: git, version: v0.0.1}
+      wtd-multi-saveas-lo:
+        display_name: Save as Low
+        target_resolution: low
+        target_resolution_shortname: lor
+        location: { path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: git, version: v0.0.1}
+      wtd-multi-saveas-lay:
+        display_name: Save as Lay
+        target_resolution: lay
+        target_resolution_shortname: lay
+        location: { path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git', type: git, version: v0.0.1}
       wtd-multi-turntable:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-turntable.git',
           type: git, version: v0.0.6}
-      # wtd-multi-saveas:
-        # display_name: TEST
-        # location: {path: 'https://github.com/RichardTheStork/wtd-multi-saveas.git',
-          # type: git, version: v0.0.0}
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}
@@ -360,7 +372,7 @@ engines:
     - {app_instance: tk-multi-workfiles, name: Shotgun File Manager...}
     - {app_instance: tk-multi-snapshot, name: Snapshot...}
     - {app_instance: tk-multi-workfiles, name: Shotgun Save As...}
-    # - {app_instance: tk-multi-publish, name: Publish...}
+    - {app_instance: tk-multi-publish, name: Publish...}
     template_project: asset_work_area_maya
     use_sgtk_as_menu_name: false
   tk-motionbuilder:
@@ -484,7 +496,7 @@ engines:
         launch_at_startup: false
         launch_change_work_area_at_startup: false
         location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
-        saveas_default_name: ""
+        saveas_default_name: ''
         saveas_prefer_version_up: false
         sg_entity_type_extra_display_fields: {}
         sg_entity_type_filters: {}
@@ -537,7 +549,7 @@ engines:
       tk-multi-publish:
         allow_taskless_publishes: true
         display_name: Publish
-        expand_single_items: True
+        expand_single_items: true
         hook_copy_file: default
         hook_post_publish: default
         hook_primary_pre_publish: default
@@ -547,19 +559,22 @@ engines:
         hook_secondary_publish: secondary_publish_tk-photoshop_layers
         hook_thumbnail: default
         location: {name: tk-multi-publish, type: app_store, version: v0.6.3}
-        primary_description: Publish and version up the current Photoshop scene and png or exr images from certain layers
+        primary_description: Publish and version up the current Photoshop scene and
+          png or exr images from certain layers
         primary_display_name: Photoshop Publish
         primary_icon: icons/publish_photoshop_main.png
         primary_publish_template: photoshop_asset_publish
         primary_scene_item_type: work_file
         primary_tank_type: Photoshop Image
         secondary_outputs:
-        - {description: Publish PNG, display_group: PNG Layers, display_name: PNG Layer,
-          icon: icons/Photoshop_Layers.png, name: pngLayer, publish_template: photoshop_asset_publish_png,
-          required: false, scene_item_type: pngLayer, selected: true, tank_type: png image}
-        - {description: Publish EXR, display_group: EXR Layers, display_name: EXR Layer,
-          icon: icons/Photoshop_LayerSets.png, name: exrLayer, publish_template: photoshop_asset_publish_exr,
-          required: false, scene_item_type: exrLayer, selected: true, tank_type: exr image}
+        - {description: Publish PNG, display_group: PNG Layers, display_name: PNG
+            Layer, icon: icons/Photoshop_Layers.png, name: pngLayer, publish_template: photoshop_asset_publish_png,
+          required: false, scene_item_type: pngLayer, selected: true, tank_type: png
+            image}
+        - {description: Publish EXR, display_group: EXR Layers, display_name: EXR
+            Layer, icon: icons/Photoshop_LayerSets.png, name: exrLayer, publish_template: photoshop_asset_publish_exr,
+          required: false, scene_item_type: exrLayer, selected: true, tank_type: exr
+            image}
         template_work: photoshop_asset_work
       tk-multi-screeningroom: '@launch_screeningroom'
       tk-multi-snapshot:
@@ -579,7 +594,7 @@ engines:
         launch_at_startup: false
         launch_change_work_area_at_startup: false
         location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
-        saveas_default_name: ""
+        saveas_default_name: ''
         saveas_prefer_version_up: false
         sg_entity_type_extra_display_fields: {}
         sg_entity_type_filters: {}
@@ -641,7 +656,7 @@ engines:
         launch_at_startup: false
         launch_change_work_area_at_startup: false
         location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
-        saveas_default_name: ""
+        saveas_default_name: ''
         saveas_prefer_version_up: false
         sg_entity_type_extra_display_fields: {}
         sg_entity_type_filters: {}
