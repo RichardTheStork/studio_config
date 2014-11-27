@@ -342,6 +342,9 @@ class PublishHook(Hook):
 					if shotStart < audioEnd < shotEnd:
 						add = True
 						aIn = audioDuration-(audioEnd-shotStart)
+					if audioStart < shotStart < audioEnd:
+						add = True
+						aIn = shotStart - audioStart
 					if audioStart < shotEnd < audioEnd:
 						add = True
 						aOut = audioDuration-(audioEnd-shotEnd)+1
@@ -427,18 +430,28 @@ class PublishHook(Hook):
 					cutOut = cmds.getAttr(audio['shot']+".endFrame")
 					cutDuration = cutOut-cutIn
 					cmds.setAttr(newAudioName+".offset", cutIn)
-					cmds.setAttr(newAudioName+".sourceEnd",cutDuration)
+					cmds.setAttr(newAudioName+".sourceEnd",cutDuration+1)
 					cmds.connectAttr(newAudioName+".message", audio['shot']+".audio",f=True)
 					print "-----------------------------------------------------------------------------________________-------------------------------------------------------------------------"
 					# PUBLISH
 					file_template = tk.template_from_path(audioOutput)
 					flds = file_template.get_fields(audioOutput)
+					print audioOutput
 					ctx = tk.context_from_path(audioOutput)
-					sg_task = tk.shotgun.find("Task",[['content', 'is',"Sound"],["entity",'is',ctx.entity]], ['id'])[0]
+
+					print ctx
+
+					sg_task = tk.shotgun.find("Task",[['content', 'is',"Sound"],["entity",'is',ctx.entity]], ['id'])
+					try:
+						sg_task = sg_task[0]
+					except indexError:
+						print "SKIPPED - are the folders already created on shotgun?????"
+						errors.append("SKIPPED - are the folders already created on shotgun?????")
 					if sg_task != []:
 						_register_publish(audioOutput,newAudioName,sg_task,flds['version'],"Audio", "publish","",ctx)
 					else:
-						print "SKIPPED - are the folders already created on shotgun??"
+						print "SKIPPED - are the folders already created on shotgun?????"
+						errors.append("SKIPPED - are the folders already created on shotgun?????")
 						#popup('error',"skipped creation of "+newAudioName+" - are the folders already created on shotgun??")
 
 			for audio in sequenceList:
@@ -454,7 +467,6 @@ class PublishHook(Hook):
 		unUsedCams = []
 
 		sides=["L","R"]
-
 
 		pbShots = []
 		CutInList = []
@@ -488,7 +500,7 @@ class PublishHook(Hook):
 		filters = [['sg_sequence', 'is', {'type':'Sequence','id':sequence_id}]]
 		assets= self.parent.shotgun.find("Shot",filters,fields)
 		results = []
-
+		errors = []
 		ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
 		if "ffmpeg.exe" not in ffmpegPath:
 			ffmpegPath += "\\ffmpeg.exe"
