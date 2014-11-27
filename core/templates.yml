@@ -260,7 +260,7 @@ paths:
     maya_shot_mesh_PositionsList: '@shot_root_Caches/publish/maya/[_{Shot}]_v{version}.txt'
 
     # outputs from the Shotgun Write Node for shots
-    # maya_shot_render_playblast: '@shot_render_root/work/maya/v{version}/{width}x{height}/{Shot}[-{name}]_v{version}'
+    maya_shot_render_playblast: '@shot_render_root/work/maya/v{version}/{width}x{height}/{Shot}[-{name}]_v{version}'
     # maya_shot_playblast_area: '@shot_render_root/work/maya/v{version}/playblast'
     # maya_shot_playblast: '@maya_shot_playblast_area/{width}x{height}/{Shot}[-{name}].{SEQ}.png'
     # maya_shot_playblast_mov: '@shot_render_root/publish/maya/v{version}/playblast/{width}x{height}/{Shot}[-{name}]_v{version}.mov'
@@ -368,13 +368,13 @@ paths:
     shot_publish_area_nuke: '@shot_root_step/publish/nuke'
 
     # The location of WIP script files
-    nuke_shot_work: '@shot_root_step/work/nuke/{Shot}_{name}_v{version}.nk'
+    nuke_shot_work: '@shot_root_step/work/nuke/{Shot}[_{name}]_v{version}.nk'
 
     # The location of backups of WIP files
-    nuke_shot_snapshot: '@shot_root_step/work/nuke/snapshots/{Shot}_{name}_v{version}.{timestamp}.nk'
+    nuke_shot_snapshot: '@shot_root_step/work/nuke/snapshots/{Shot}[_{name}]_v{version}.{timestamp}.nk'
 
     # The location of published nuke script files
-    nuke_shot_publish: '@shot_root_step/publish/nuke/{Shot}_{name}_v{version}.nk'
+    nuke_shot_publish: '@shot_root_step/publish/nuke/{Shot}[_{name}]_v{version}.nk'
 
     # write node outputs
     nuke_shot_render_mono_dpx:            '@shot_render_root/work/v{version}/{Shot}_v{version}.{SEQ}.dpx'

@@ -63,7 +63,7 @@ engines:
     template_project: null
 frameworks:
   tk-framework-adminui_v0.x.x:
-    location: {name: tk-framework-adminui, type: app_store, version: v0.0.7}
+    location: {name: tk-framework-adminui, type: app_store, version: v0.0.15}
   tk-framework-login_v1.x.x:
     location: {name: tk-framework-login, type: app_store, version: v1.0.2}
   tk-framework-softimageqt_v1.0.1:

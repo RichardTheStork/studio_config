@@ -55,20 +55,21 @@ class ScanSceneHook(Hook):
 		"""   
 		
 		# with open(r"C:\Users\mclaeys\Desktop\photoshopLog.txt", "w") as log:
-			# log.write("self.parent\n")
-			# log.write("#"*35)
+		with open(r"C:\Users\tdelbergue\Desktop\photoshopLog.txt", "w") as log:
+			log.write("self.parent\n")
+			log.write("#"*35)
 			
-			# tempVar = dir(self.parent)
-			# for i in tempVar:
-				# log.write(str(i) + "\n")
-			# log.write("#"*35)
-			# log.write("\n")
+			tempVar = dir(self.parent)
+			for i in tempVar:
+				log.write(str(i) + "\n")
+			log.write("#"*35)
+			log.write("\n")
 				
-			# log.write("self.parent.sgtk\n")
-			# log.write("#"*35)
-			# tempVar = dir(self.parent.sgtk)
-			# for i in tempVar:
-				# log.write(str(i) + "\n")
+			log.write("self.parent.sgtk\n")
+			log.write("#"*35)
+			tempVar = dir(self.parent.sgtk)
+			for i in tempVar:
+				log.write(str(i) + "\n")
 		
 		
 		items = []

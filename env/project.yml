@@ -118,7 +118,8 @@ engines:
       tk-multi-screeningroom: '@launch_screeningroom'
       tk-multi-workfiles: '@workfiles-launch-at-startup'
       wtd-multi-shotloader:
-        location: {path: 'W:\RTS\People\xander\git\wtd-multi-shotloader', type: dev, disabled: true}
+        location: {disabled: true, path: 'W:\RTS\People\xander\git\wtd-multi-shotloader',
+          type: dev}
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}
@@ -157,7 +158,7 @@ engines:
     template_project: null
 frameworks:
   tk-framework-adminui_v0.x.x:
-    location: {name: tk-framework-adminui, type: app_store, version: v0.0.7}
+    location: {name: tk-framework-adminui, type: app_store, version: v0.0.15}
   tk-framework-login_v1.x.x:
     location: {name: tk-framework-login, type: app_store, version: v1.0.2}
   tk-framework-softimageqt_v1.0.1:

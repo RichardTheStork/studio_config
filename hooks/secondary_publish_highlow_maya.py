@@ -134,7 +134,7 @@ class PublishHook(Hook):
 				flds['Resolution'] = "hir"
 			
 			if set_lowres:
-				flds['Resolution'] = "low"
+				flds['Resolution'] = "lor"
 				
 			if set_layres:
 				flds['Resolution'] = "lay"
