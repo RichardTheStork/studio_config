@@ -202,7 +202,8 @@ paths:
     maya_seq_render_work_mov: '@seq_render_root/work/{Sequence}[-{name}][_{channel}]_v{version}.mov'
     maya_seq_render_review_mp4: '@seq_render_root/review/{Sequence}[-{name}][_{channel}]_v{version}.mp4'
     ##seq_quicktime_quick:   '@seq_render_root/review/quickdaily/{Sequence}_{name}_{iteration}.mov'
-
+    ##/srv/projects/rts/RTS/Sequences/q350/Steps/s3d/work/images/mp4/q350-base_s3d_v001.mp4
+    maya_rakete_workVersion: '@seq_root_step/work/images/mp4/{Sequence}[-{name}]_{Step}_v{version}.mp4'
     ##########################################################################################
     # Shot level paths q001
     #
