@@ -273,12 +273,12 @@ engines:
       tk-multi-about: '@about'
       tk-multi-loader2:
         action_mappings:
-          Maya Scene: [reference, import]
+          Maya Scene: [reference, import, importNoNs]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
           Audio: [reference, import]
           Alembic Cache: [reference, import]
-        actions_hook: '{self}/tk-maya_actions.py'
+        actions_hook: '{config}/tk-maya_actions.py'
         download_thumbnails: true
         entities:
         - caption: Assets

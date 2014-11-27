@@ -236,7 +236,7 @@ engines:
           Maya Scene: [reference, import]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
-        actions_hook: '{self}/tk-maya_actions.py'
+        actions_hook: '{config}/tk-maya_actions.py'
         # actions_hook: 'wtd-maya_actions'
         download_thumbnails: true
         entities:
