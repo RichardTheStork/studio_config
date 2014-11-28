@@ -186,7 +186,7 @@ engines:
         hook_secondary_pre_publish: TEST_TEMP_TD_Maya_secondary_pre_publish
         hook_secondary_publish: TEST_TEMP_TD_Maya_secondary_publish
         hook_thumbnail: default
-        location: {disabled: false, name: tk-multi-publish, type: app_store, version: v0.4.2}
+        location: {disabled: true, name: tk-multi-publish, type: app_store, version: v0.4.2}
         primary_description: Publish and version up the current Maya scene
         primary_display_name: Maya Publish
         primary_icon: icons/publish_maya_main.png
@@ -326,20 +326,22 @@ engines:
         template_work: maya_shot_work
         template_work_area: shot_work_area_maya
       wtd-multi-resolutionSwitcherHigh:
-        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.2}
+        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
         target_resolution: High
         target_resolution_shortname: hir
       wtd-multi-resolutionSwitcherLay:
-        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.2}
+        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
         target_resolution: Lay
         target_resolution_shortname: lay
       wtd-multi-resolutionSwitcherLow:
-        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.2}
+        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
         target_resolution: Low
         target_resolution_shortname: lor
+      wtd-multi-resolutionSwitcherTest:
+        location: {disabled: True, path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.2}
+        target_resolution: Tst
+        target_resolution_shortname: tst
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}
