@@ -187,10 +187,7 @@ class MayaActions(HookBaseClass):
 				namespace = namespace.replace(" ", "_")
 				#namespace = getNextAvailableNamespace(namespace)
 				
-		pm.system.createReference(path, 
-								  loadReferenceDepth= "all", 
-								  mergeNamespacesOnClash=False, 
-								  namespace=namespace)
+		pm.system.createReference(path,  loadReferenceDepth= "all", mergeNamespacesOnClash=False, namespace=namespace)
 
 	def _do_import(self, path, sg_publish_data):
 		"""
