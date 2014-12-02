@@ -135,7 +135,7 @@ class MayaActions(HookBaseClass):
 		if name == "import":
 			self._do_import(path, sg_publish_data)
 			
-		if name == "importNoNs":
+		if name == "import without Namespace":
 			self._do_importNoNs(path, sg_publish_data)
 		
 		if name == "texture_node":
@@ -218,12 +218,6 @@ class MayaActions(HookBaseClass):
 		"""
 		if not os.path.exists(path):
 			raise Exception("File not found on disk - '%s'" % path)
-				
-		# make a name space out of entity name + publish name
-		# e.g. bunny_upperbody                
-		#namespace = "%s %s" % (sg_publish_data.get("entity").get("name"), sg_publish_data.get("name"))
-		#namespace = namespace.replace(" ", "_")
-		
 		# perform a more or less standard maya import, putting all nodes brought in into a specific namespace
 		cmds.file(path, i=True, loadReferenceDepth="all", preserveReferences=True)
 
