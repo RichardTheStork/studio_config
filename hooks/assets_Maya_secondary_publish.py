@@ -125,28 +125,44 @@ class PublishHook(Hook):
 		# get the current scene path and extract fields from it
 		# using the work template:
 		scene_path = os.path.abspath(cmds.file(query=True, sn=True))
-		mainFields = work_template.get_fields(scene_path)
+		# mainFields = work_template.get_fields(scene_path)
 		
 		version = 1
-		
+		resolution = "lay"
 		# fields needs : '@asset_root_step/work/maya/{Asset}_{Step}_v{version}.ma'
-		fields = {"sg_asset_type": assetType, "Asset":assetName, "Step":"mod", "version":version}
+		fields = {"sg_asset_type": assetType, "Asset":assetName, "Step":"mod", "version":version, "resolution":resolution}
 		#TEST TD RESOLUTION
 		if 'Resolution' not in item:
 			fields["Resolution"]="lay"
 		# create the publish path by applying the fields 
 		# with the publish template:
+		
+		work_version =  fields["version"]
+		publish_version = fields["version"]
+		model_publish_path = publish_template.apply_fields(fields)
 		model_workfile_path = work_template.apply_fields(fields)
 		
-		publish_version = fields["version"]
-		fields["version"] = publish_version
-		model_publish_path = publish_template.apply_fields(fields)
 		progress_cb(10)
 		print "### model_publish_path = %s ###" %model_publish_path
 		
+		# if os.path.exists(model_workfile_path):
+		work_version = self.versionUpAsset( model_workfile_path, work_template)
+		# if os.path.exists(model_publish_path):
+		publish_version = self.versionUpAsset( model_publish_path, publish_template)
+			
+		if work_version > publish_version:
+			fields["version"] = work_version
+		else:
+			fields["version"] = publish_version +1
+			publish_version = fields["version"]
+		model_publish_path = publish_template.apply_fields(fields)
+		workfileFields = fields
+		workfileFields["version"] = fields["version"] +1
+		model_workfile_path = work_template.apply_fields(workfileFields)
+			
 		if os.path.exists(model_publish_path):
 			raise TankError("The published file named '%s' already exists!" % model_publish_path)
-
+			
 		# Do all the resetting transformations/saving/exporting and other stuff...
 		
 		uninstance()
@@ -160,15 +176,10 @@ class PublishHook(Hook):
 		sel=cmds.ls(selection=True, excludeType = "transform")
 		cmds.select(sel)
 		
-		
-		
 		tempPos, tempRot, tempScl = getTransform(objectName)
 		setTransform(objectName)
 		
 		progress_cb(25)
-		# print dir(self.parent)
-		# print dir(self.parent.tank)
-		# print dir(self.parent.shotgun)
 		
 		try:
 			print 'TRY to publish model : %s' %objectName
@@ -194,14 +205,14 @@ class PublishHook(Hook):
 			returnWorkName = cmds.file(model_workfile_path, type='mayaAscii', exportSelected = True)
 			progress_cb(45)
 			
-			for objChild in sel:
-				objChildSelName= objChild.split('|')[-1]
-				
 			print 'parenting meshes again...'
 			print sel
 			print objectName
+			for objChild in sel:
+				objChildSelName= objChild.split('|')[-1]
+				cmds.parent(groupName+'|'+objChildSelName, objectName)
+				
 			print groupName
-			cmds.parent(groupName+'|'+objChildSelName, objectName)
 			# cmds.parent(sel, objectName)
 			# cmds.parent(groupName, objectName)
 			cmds.delete(groupName)
@@ -216,14 +227,34 @@ class PublishHook(Hook):
 		publish_name = self._get_publish_name(model_publish_path, publish_template, fields)
 		print "Publish name = ", publish_name
 		setTransform(objectName, tempPos, tempRot, tempScl)
-		returnEntity = self._create_asset_in_shotgun(assetName, assetType, [self.parent.context.entity], template = taskTemplate)
+		
+		returnEntity = None
+		if item["other_params"]["existing"]:
+			filters = [ ['code', 'is', assetName] ]
+			returnEntity = self.parent.shotgun.find_one("Asset", filters)
+		else:
+			returnEntity = self._create_asset_in_shotgun(assetName, assetType, [self.parent.context.entity], template = taskTemplate)
 		returnContext = self.parent.tank.context_from_entity(returnEntity["type"], returnEntity["id"])
-				
+		
+		print "Find right task..."
+		taskFilters = [ ['content','is','Model Layout'],['entity', 'is', {'type':returnEntity["type"], 'id':returnEntity["id"]}]]
+		taskFields = ['id', 'content', 'sg_status_list']
+		taskEntity = self.parent.shotgun.find_one("Task", taskFilters, taskFields)
+		print taskEntity
+		
+		if taskEntity == None:
+			# raise TankError("The published file named '%s' already exists!" % model_publish_path)
+			taskEntity = sg_task
+		else:
+			if taskEntity["sg_status_list"] == "wtg":
+				taskData = {"sg_status_list":"rdy"}
+				self.parent.shotgun.update("Task", taskEntity["id"], taskData)
+		
 		progress_cb(75)
 		### Finally, register this publish with Shotgun
 		returnValue = self._register_publish(model_publish_path, 
 							   assetName, 
-							   sg_task, 
+							   taskEntity, 
 							   publish_version, 
 							   tank_type,
 							   comment,
@@ -234,10 +265,10 @@ class PublishHook(Hook):
 		progress_cb(90)
 		### Create folders from shotgun... (= wait long time) ###
 		# print self.parent.tank.preview_filesystem_structure(returnEntity["type"], returnEntity["id"], "tk-maya")
-		self.parent.tank.create_filesystem_structure(returnEntity["type"], returnEntity["id"], "tk-maya")
+		if not item["other_params"]["existing"]:
+			self.parent.tank.create_filesystem_structure(returnEntity["type"], returnEntity["id"], "tk-maya")
+			
 		
-		
-							   
 	def _register_publish(self, path, name, sg_task, publish_version, tank_type, comment, thumbnail_path, context = None, dependency_paths=None):
 		"""
 		Helper method to register publish using the 
@@ -331,7 +362,23 @@ class PublishHook(Hook):
 					new_version_str = "#" * len(zero_version_str)
 					name = name.replace(dummy_version_str, new_version_str)
 		
-		return name     
+		return name
+		
+	def versionUpAsset(self, targetPath, assetTemplate):
+		fields = assetTemplate.get_fields(str(targetPath))
+		print fields
+		all_versions = self.parent.tank.paths_from_template(assetTemplate, fields, skip_keys=["version"])
+		# now look for the highest version number...
+		
+		latest_version = 0
+		if len(all_versions) > 0:
+			for ver in all_versions:
+				fields = assetTemplate.get_fields(ver)
+				if fields["version"] > latest_version:
+					latest_version = fields["version"]
+				
+		return (latest_version)
+		
 			
 		
 def setTransform(objName, pos = [0,0,0], rot = [0,0,0], scl = [1,1,1], visibility = True):

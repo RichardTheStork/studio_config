@@ -85,15 +85,23 @@ class ScanSceneHook(Hook):
 			print '   # Checking object : %s' %obj
 			assetName = obj
 			tempAssetName = ""
-			if "_" in obj:
-				if obj.find("_") == obj.rfind("_"):
-					tempAssetName = obj.strip("0123456789")
+			# print assetName
+			if assetName.find("|"):
+				assetName = assetName[assetName.rfind("|")+1 : ]
+			# print assetName
+			if assetName.find(":"):
+				assetName = assetName[assetName.rfind(":")+1 : ]
+
+			if "_" in assetName:
+				if assetName.find("_") == assetName.rfind("_"):
+					tempAssetName = assetName.strip("0123456789")
 					if tempAssetName.endswith("_"):
 						assetName = tempAssetName[ : -1]
 					else:
 						assetName = assetName[assetName.find("_") +1 : ]
 				else:
-					assetName = obj[obj.find("_")+1 : ].strip("0123456789")[ : -1]
+					assetName = assetName[assetName.find("_")+1 : assetName.rfind("_")]#.strip("0123456789")[ : -1]
+			print assetName
 			
 			if assetName in modelDict:
 				modelDict[assetName]["other_params"]["amount"] += 1
@@ -104,20 +112,26 @@ class ScanSceneHook(Hook):
 			# print 'SINGLES : ', assetName, obj
 			# selected = checkReference(obj)		
 			
+			assetObjName = obj
+			if assetObjName.find("|") != -1 or assetObjName.find(":") != -1 :
+				assetObjName = assetObjName.replace("|","#").replace(":","#")
+				assetObjName = assetObjName[ assetObjName.rfind("#")+1: ]
+			print assetObjName
 			tempType = None
-			if obj.startswith("PRP_"):
+			if assetObjName.startswith("PRP_"):
 				tempType = "Prop"
-			elif obj.startswith("SET_") or obj.startswith("SUB_") :
+			elif assetObjName.startswith("SET_") or assetObjName.startswith("SUB_") :
 				tempType = "Set"
 				selected = False
-			elif obj.startswith("CHR_"):
+			elif assetObjName.startswith("CHR_"):
 				tempType = "Character"
-			elif obj.startswith("VEH_"):
+			elif assetObjName.startswith("VEH_"):
 				tempType = "Vehicle"
-			elif obj in typeDict:
+			elif assetObjName in typeDict:
 				tempType = typeDict[obj]
 				
-			selected = not checkIfAssetExists(self.parent.shotgun, assetName, tempType)
+			existing = checkIfAssetExists(self.parent.shotgun, assetName, tempType)
+			selected = not existing
 			
 			# Use selection to get all the children of "Alembic" objectset
 			tempChildren = cmds.listRelatives(obj, allDescendents = False, children = True, path = True)
@@ -125,7 +139,7 @@ class ScanSceneHook(Hook):
 			# Get only the selected items. (if necessary take only certain types to export!)
 			sel=cmds.ls(selection=True, showType=True)
 			descr = 'objectName : %s' %obj
-			modelDict[assetName] = {"type":tempType, "name":assetName, "selected":selected, "description":descr, "other_params":{"selectionDict":sel,"amount":1, "propName":obj}}
+			modelDict[assetName] = {"type":tempType, "name":assetName, "selected":selected, "description":descr, "other_params":{"selectionDict":sel,"amount":1, "propName":obj, "existing":existing}}
 			cmds.select(deselect=True)		
 			
 		for m in modelDict:

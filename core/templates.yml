@@ -256,7 +256,8 @@ paths:
 
     # The location of published maya files [_{name}Main]
     maya_shot_publish: '@shot_root_step/publish/maya/{Shot}_{Step}_v{version}.ma'
-    maya_shot_mesh_alembic_cache: '@shot_root_Caches/publish/maya/[_{grp_name}]_v{version}.abc'
+    #maya_shot_mesh_alembic_cache: '@shot_root_Caches/publish/maya/[_{grp_name}]_v{version}.abc'
+    maya_shot_mesh_alembic_cache: '@shot_root_Caches/publish/maya/{Shot}[-{name}]_{Step}_v{version}.abc'
     maya_shot_mesh_MDD_cache: '@shot_root_Caches/publish/maya/[_{grp_name}]_v{version}.mdd'
     maya_shot_mesh_PositionsList: '@shot_root_Caches/publish/maya/[_{Shot}]_v{version}.txt'
 

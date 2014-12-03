@@ -74,15 +74,15 @@ class PrePublishHook(Hook):
 
 			 # pre-publish model output
 			if output["name"] == "prop":
-				errors.extend(self._validate_item_for_prop_publish(item))
+				errors.extend(self._validate_item_for_prop_publish(item, output))
 			elif output["name"] == "set":
-				errors.extend(self._validate_item_for_set_publish(item))
+				errors.extend(self._validate_item_for_set_publish(item, output))
 			elif output["name"] == "character":
-				errors.extend(self._validate_item_for_character_publish(item))
+				errors.extend(self._validate_item_for_character_publish(item, output))
 			elif output["name"] == "vehicle":
-				errors.extend(self._validate_item_for_vehicle_publish(item))
+				errors.extend(self._validate_item_for_vehicle_publish(item, output))
 			elif output["name"] == "poslist":
-				errors.extend(self._validate_item_for_positionlist_publish(item))
+				errors.extend(self._validate_item_for_positionlist_publish(item, output))
 			else:
 				# don't know how to publish this output types!
 				errors.append("Don't know how to publish this item!")       
@@ -96,7 +96,7 @@ class PrePublishHook(Hook):
 
 		return results
 
-	def _validate_item_for_prop_publish(self, item):
+	def _validate_item_for_prop_publish(self, item, output):
 		"""
 		Validate that the item is valid to be exported 
 		as an asset
@@ -128,6 +128,10 @@ class PrePublishHook(Hook):
 			if not meshesFound:
 				errors.append("This group doesn't appear to contain any meshes!")
 			cmds.select(deselect=True)			
+			
+		print 'Existing CHECK : ', item["other_params"]["existing"]
+		if item["other_params"]["existing"]:
+			errors.append("Exists in shotgun! Version up when publishing!")
 			
 		# finally return any errors
 		return errors
@@ -166,7 +170,10 @@ class PrePublishHook(Hook):
 			
 			if not meshesFound:
 				errors.append("This group doesn't appear to contain any locators or meshes!")
-			cmds.select(deselect=True)			
+			cmds.select(deselect=True)		
+			
+		if item["other_params"]["existing"]:
+			errors.append("Exists in shotgun! Version up when publishing!")
 			
 		# finally return any errors
 		return errors	
@@ -201,3 +208,4 @@ class PrePublishHook(Hook):
 			
 		# finally return any errors
 		return errors
+		
