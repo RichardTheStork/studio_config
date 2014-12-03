@@ -158,6 +158,7 @@ class PublishHook(Hook):
 		errors = []
 		MAX_THUMB_SIZE = 256
 
+		# printerTool("image publish %s" %name, "FIRST")
 		# generate the export path using the correct template together
 		# with the fields extracted from the work template:
 		export_path = None
@@ -200,6 +201,7 @@ class PublishHook(Hook):
 		original_ruler_units = photoshop.app.preferences.rulerUnits
 		pixel_units = photoshop.StaticObject('com.adobe.photoshop.Units', 'PIXELS')
 		photoshop.app.preferences.rulerUnits = pixel_units        
+		# printerTool("More info", "Got here...")
 			
 		try:
 			orig_name = active_doc.name
@@ -226,51 +228,77 @@ class PublishHook(Hook):
 			
 			# set up the export options and get a file object:
 			layer_file = photoshop.RemoteObject('flash.filesystem::File', export_path)     
-			
-			file_save_options = None
-			if export_path.endswith(".png"):
-				file_save_options = photoshop.RemoteObject('com.adobe.photoshop::PNGSaveOptions')
-			elif export_path.endswith(".exr"):
-				"""
-				TODO EXR STUFF!!!
-				"""
-				print 'TODO, create exr stuff'
-				errors.append("Can not publish to EXR yet %s" %export_path)
-				return errors
-				file_save_options = photoshop.RemoteObject('com.adobe.photoshop::ExrSaveOptions')
-			else:
-				errors.append("Can not publish to %s" %export_path)
-				return errors
-			
-			# set up the thumbnail options and get a file object:
-			thumbnail_file = photoshop.RemoteObject('flash.filesystem::File', thumbnail_path)
-			png_save_options = photoshop.RemoteObject('com.adobe.photoshop::PNGSaveOptions')
-			
-			close_save_options = photoshop.flexbase.requestStatic('com.adobe.photoshop.SaveOptions', 'DONOTSAVECHANGES')              
+			# printerTool(export_path, "Export Path :")
 			
 			progress_cb(20, "Exporting %s layer" % layer_name)
+			close_save_options = photoshop.flexbase.requestStatic('com.adobe.photoshop.SaveOptions', 'DONOTSAVECHANGES')
+			file_save_options = None
 			
 			# duplicate doc
 			doc_name, doc_sfx = os.path.splitext(orig_name)
 			layer_doc_name = "%s_%s.%s" % (doc_name, layer_name, doc_sfx)            
 			layer_doc = active_doc.duplicate(layer_doc_name)
+			currentBitsPerChannel = layer_doc.bitsPerChannel
 			try:
-				# set layer visibility
-				layers = layer_doc.artLayers
-				layerSets = layer_doc.layerSets
-				layers = [layers.index(i) for i in xrange(layers.length)]
-				layerSets = [layerSets.index(i) for i in xrange(layerSets.length)]
-				for layer in layers:
-					layer.visible = (layer.name == layer_name)
-				for layer in layerSets:
-					layer.visible = (layer.name == layer_name)
+				if export_path.endswith(".png"):
+					file_save_options = photoshop.RemoteObject('com.adobe.photoshop::PNGSaveOptions')
+					
+					# set layer visibility
+					layers = layer_doc.artLayers
+					layerSets = layer_doc.layerSets
+					layers = [layers.index(i) for i in xrange(layers.length)]
+					layerSets = [layerSets.index(i) for i in xrange(layerSets.length)]
+					for layer in layers:
+						layer.visible = (layer.name == layer_name)
+					for layer in layerSets:
+						layer.visible = (layer.name == layer_name)
+					
+					# flatten
+					layer_doc.flatten()
+					
+					# save:
+					layer_doc.saveAs(layer_file, file_save_options, True)
+						
+				elif export_path.endswith(".exr"):
+					try:
+						# set layer visibility
+						layers = layer_doc.artLayers
+						layerSets = layer_doc.layerSets
+						layers = [layers.index(i) for i in xrange(layers.length)]
+						layerSets = [layerSets.index(i) for i in xrange(layerSets.length)]
+						for layer in layers:
+							layer.visible = (layer.name == layer_name)
+						for layer in layerSets:
+							layer.visible = (layer.name == layer_name)
+						
+						bitPerChannel = photoshop.flexbase.requestStatic('com.adobe.photoshop.BitsPerChannelType', 'THIRTYTWO')
+						if currentBitsPerChannel !=  bitPerChannel:
+							layer_doc.bitsPerChannel = bitPerChannel
+						
+						desc6 = photoshop.RemoteObject('com.adobe.photoshop::ActionDescriptor')
+						idsave = photoshop.app.charIDToTypeID("save")
+						idAs = photoshop.app.charIDToTypeID("As  ")
+						idIn = photoshop.app.charIDToTypeID("In  ")
+						dialogMode_No = photoshop.flexbase.requestStatic('com.adobe.photoshop.DialogModes','NO' )
+												
+						desc6.putString( idAs, "OpenEXR" )
+						desc6.putPath( idIn, layer_file )
+						photoshop.app.executeAction( idsave, desc6, dialogMode_No )
+												
+					except Exception, e:
+						# raise TankError("ERROR in EXR saving: %s" %e)
+						errors.append("ERROR in EXR saving: %s" %e)
+
+				else:
+					errors.append("Can not publish to %s" %export_path)
+					return errors
 				
-				# flatten
+				# set up the thumbnail options and get a file object:
+				thumbnail_file = photoshop.RemoteObject('flash.filesystem::File', thumbnail_path)
+				png_save_options = photoshop.RemoteObject('com.adobe.photoshop::PNGSaveOptions')
+				
+				layer_doc.bitsPerChannel = currentBitsPerChannel
 				layer_doc.flatten()
-				
-				# save:
-				layer_doc.saveAs(layer_file, file_save_options, True)
-				
 				progress_cb(60, "Exporting thumbnail")
 				
 				# resize for thumbnail
@@ -320,6 +348,7 @@ class PublishHook(Hook):
 		print 'Register in shotgun done!'
 		
 		return sg_data
+		
 	
 	"""
 	Extra function to publish thumbnail from photoshop.
@@ -396,3 +425,22 @@ class PublishHook(Hook):
 		
 		return thumbnail_path
 		
+
+def  printerTool(input, extraInfo):
+	with open(r"C:\Users\mclaeys\Desktop\photoshopLog.txt", "a") as log:
+		log.write("\n")
+		log.write("#"*35)
+		log.write("\n")
+		log.write(extraInfo)
+		log.write("\n")
+		log.write("#"*35)
+		log.write("\n")
+		try:
+			log.write("\n")
+			if type(input) == list or type(input) == dict:
+				for i in input:
+					log.write(str(i) + "\n")
+			else:
+				log.write(str(input) + "\n")
+		except Exception, e:
+			log.write("ERROR" + str(e) + "\n")

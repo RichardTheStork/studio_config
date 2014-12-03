@@ -53,46 +53,28 @@ class ScanSceneHook(Hook):
 											pre-publish and publish hooks
 						}
 		"""   
-		
-		# with open(r"C:\Users\mclaeys\Desktop\photoshopLog.txt", "w") as log:
-		with open(r"C:\Users\tdelbergue\Desktop\photoshopLog.txt", "w") as log:
-			log.write("self.parent\n")
-			log.write("#"*35)
 			
-			tempVar = dir(self.parent)
-			for i in tempVar:
-				log.write(str(i) + "\n")
-			log.write("#"*35)
-			log.write("\n")
-				
-			log.write("self.parent.sgtk\n")
-			log.write("#"*35)
-			tempVar = dir(self.parent.sgtk)
-			for i in tempVar:
-				log.write(str(i) + "\n")
-		
-		
 		items = []
 		# layersNames = {"dif":"png 8bit", "spc":"png 8bit", "bmp":"png 8bit", "rgh":"png 8bit", "nrm":"exr 16bit", "trs":"png 8bit", "sss":"png 8bit", "dsp":"exr 16bit"}
 		layersNames = {"dif":"png", "spc":"png", "bmp":"png", "rgh":"png", "nrm":"exr", "trs":"png", "sss":"png", "dsp":"exr"}
 		layersFullNames = {"dif":"diffuse", "spc":"specular", "bmp":"bump", "rgh":"rgh", "nrm":"normals", "trs":"trs", "sss":"sss", "dsp":"displace"}
 		
 		# get the main scene:
-		doc = photoshop.app.activeDocument
-		if doc is None:
+		active_doc = photoshop.app.activeDocument
+		if active_doc is None:
 			raise TankError("There is no currently active document!")
 		
-		if not doc.saved:
+		if not active_doc.saved:
 			raise TankError("Please Save your file before Publishing")
 		
-		scene_path = doc.fullName.nativePath
+		scene_path = active_doc.fullName.nativePath
 		name = os.path.basename(scene_path)
 		
 		# create the primary item - this will match the primary output 'scene_item_type':            
 		items.append({"type": "work_file", "name": name})
 
-		layers = doc.artLayers
-		layerSets = doc.layerSets
+		layers = active_doc.artLayers
+		layerSets = active_doc.layerSets
 		
 		layers = [layers.index(i) for i in xrange(layers.length)]
 		layerSets = [layerSets.index(i) for i in xrange(layerSets.length)]
