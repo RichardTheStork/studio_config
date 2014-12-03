@@ -95,6 +95,11 @@ class MayaActions(HookBaseClass):
 									  "caption": "Import into Scene without a namespace", 
 									  "description": "This will import the item into the current scene without a namespace."} )
 
+		if "openUntitled" in actions:
+			action_instances.append( {"name": "open as untitled", 
+									  "params": None,
+									  "caption": "open the maya file and set it to untitled", 
+									  "description": "This will open the publish and rename the scene to untitled, use in empty scenes only."} )
 
 		if "texture_node" in actions:
 			action_instances.append( {"name": "texture_node",
@@ -135,7 +140,7 @@ class MayaActions(HookBaseClass):
 		if name == "import":
 			self._do_import(path, sg_publish_data)
 			
-		if name == "importNoNs":
+		if name == "import without Namespace":
 			self._do_importNoNs(path, sg_publish_data)
 		
 		if name == "texture_node":
@@ -143,6 +148,9 @@ class MayaActions(HookBaseClass):
 			
 		if name == "udim_texture_node":
 			self._create_udim_texture_node(path, sg_publish_data)
+		
+		if name == "open as untitled":
+			self._do_open_file_as_untitled(path, sg_publish_data)
 						
 		   
 	##############################################################################################################
@@ -218,15 +226,30 @@ class MayaActions(HookBaseClass):
 		"""
 		if not os.path.exists(path):
 			raise Exception("File not found on disk - '%s'" % path)
-				
-		# make a name space out of entity name + publish name
-		# e.g. bunny_upperbody                
-		#namespace = "%s %s" % (sg_publish_data.get("entity").get("name"), sg_publish_data.get("name"))
-		#namespace = namespace.replace(" ", "_")
-		
 		# perform a more or less standard maya import, putting all nodes brought in into a specific namespace
 		cmds.file(path, i=True, loadReferenceDepth="all", preserveReferences=True)
 
+	def _do_open_file_as_untitled(self, path, sg_publish_data):
+		"""
+		opens the path and sets the session to untitled
+		the maya callback is paused to not loose context
+		"""
+		#stop the watcher for a second, or else he will pick up the load and switch to layout
+		engine = sgtk.platform.current_engine() 
+		engine._MayaEngine__watcher.stop_watching()
+
+		pm.cmds.file(path, open = True, force = True)
+		pm.cmds.file(rename = "untitled")
+		pm.cmds.file(rts = 1)	 
+
+		# set scene settings
+		defaultResolution = pm.PyNode("defaultResolution")
+		defaultResolution.width.set(1725)
+		defaultResolution.height.set(936)
+		defaultResolution.deviceAspectRatio.set(1725.0/936.0)
+
+		#start the watcher again
+		engine._MayaEngine__watcher.start_watching()
 
 	def _create_texture_node(self, path, sg_publish_data):
 		"""

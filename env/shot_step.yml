@@ -214,9 +214,9 @@ engines:
       tk-multi-about: '@about'
       tk-multi-loader2:
         action_mappings:
-          Alembic Cache: [reference, import, importNoNs]
-          Audio: [reference, import]
-          Maya Scene: [reference, import]
+          Alembic Cache: [reference]
+          Audio: [reference]
+          Maya Scene: [reference, openUntitled, importNoNs]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
         actions_hook: '{config}/tk-maya_actions.py'
@@ -305,7 +305,7 @@ engines:
         template_snapshot: maya_shot_snapshot
         template_work: maya_shot_work
       tk-multi-workfiles:
-        allow_task_creation: true
+        allow_task_creation: false
         file_extensions: []
         hook_copy_file: default
         hook_filter_publishes: default
