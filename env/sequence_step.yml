@@ -299,7 +299,7 @@ engines:
       tk-multi-about: '@about'
       tk-multi-loader2:
         action_mappings:
-          Maya Scene: [reference, import, importNoNs]
+          Maya Scene: [reference,referenceWithLocator, import, importNoNs]
           Photoshop Image: [texture_node]
           Rendered Image: [texture_node]
           Audio: [reference, import]
@@ -416,6 +416,26 @@ engines:
         template_publish_area: seq_publish_area_maya
         template_work: maya_seq_work
         template_work_area: seq_work_area_maya
+      wtd-multi-resolutionSwitcherHigh:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: High
+        target_resolution_shortname: hir
+      wtd-multi-resolutionSwitcherLay:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: Lay
+        target_resolution_shortname: lay
+      wtd-multi-resolutionSwitcherLow:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: Low
+        target_resolution_shortname: lor
+      wtd-multi-resolutionSwitcherTest:
+        location: {disabled: True, path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.2}
+        target_resolution: Tst
+        target_resolution_shortname: tst
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}

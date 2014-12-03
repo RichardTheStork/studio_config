@@ -368,6 +368,26 @@ engines:
       wtd-multi-turntable:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-turntable.git',
           type: git, version: v0.0.6}
+      wtd-multi-resolutionSwitcherHigh:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: High
+        target_resolution_shortname: hir
+      wtd-multi-resolutionSwitcherLay:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: Lay
+        target_resolution_shortname: lay
+      wtd-multi-resolutionSwitcherLow:
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
+        target_resolution: Low
+        target_resolution_shortname: lor
+      wtd-multi-resolutionSwitcherTest:
+        location: {disabled: True, path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.2}
+        target_resolution: Tst
+        target_resolution_shortname: tst
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}

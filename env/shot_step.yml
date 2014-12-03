@@ -326,15 +326,18 @@ engines:
         template_work: maya_shot_work
         template_work_area: shot_work_area_maya
       wtd-multi-resolutionSwitcherHigh:
-        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
         target_resolution: High
         target_resolution_shortname: hir
       wtd-multi-resolutionSwitcherLay:
-        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
         target_resolution: Lay
         target_resolution_shortname: lay
       wtd-multi-resolutionSwitcherLow:
-        location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher', type: dev}
+        location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
+          type: git, version: v0.0.3}
         target_resolution: Low
         target_resolution_shortname: lor
       wtd-multi-resolutionSwitcherTest:
