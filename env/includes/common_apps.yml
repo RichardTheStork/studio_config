@@ -27,7 +27,7 @@ workfiles:
   hook_scene_operation: default
   launch_at_startup: false
   launch_change_work_area_at_startup: false
-  location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
+  location: {name: tk-multi-workfiles, type: app_store, version: v0.6.7}
   saveas_default_name: scene
   saveas_prefer_version_up: false
   sg_entity_type_extra_display_fields: {}
@@ -39,6 +39,7 @@ workfiles:
   template_publish_area: null
   template_work: null
   template_work_area: null
+  version_compare_ignore_fields: []
 workfiles-launch-at-startup:
   allow_task_creation: false
   file_extensions: []
@@ -48,7 +49,7 @@ workfiles-launch-at-startup:
   hook_scene_operation: default
   launch_at_startup: false
   launch_change_work_area_at_startup: false
-  location: {name: tk-multi-workfiles, type: app_store, version: v0.6.2}
+  location: {name: tk-multi-workfiles, type: app_store, version: v0.6.7}
   saveas_default_name: scene
   saveas_prefer_version_up: false
   sg_entity_type_extra_display_fields: {}
@@ -60,3 +61,4 @@ workfiles-launch-at-startup:
   template_publish_area: null
   template_work: null
   template_work_area: null
+  version_compare_ignore_fields: []

@@ -254,7 +254,7 @@ class PublishHook(Hook):
 						layer.visible = (layer.name == layer_name)
 					
 					# flatten
-					layer_doc.flatten()
+					# layer_doc.flatten()
 					
 					# save:
 					layer_doc.saveAs(layer_file, file_save_options, True)

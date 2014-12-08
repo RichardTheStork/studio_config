@@ -216,8 +216,8 @@ engines:
         action_mappings:
           Alembic Cache: [reference]
           Audio: [reference]
-          Maya Scene: [reference, openUntitled, importNoNs]
-          Photoshop Image: [texture_node]
+          Maya Scene: [referenceWithLocator, reference, openUntitled, importNoNs]
+          Photoshop Image: [texture_node, udim_texture_node]
           Rendered Image: [texture_node]
         actions_hook: '{config}/tk-maya_actions.py'
         download_thumbnails: true
@@ -327,24 +327,21 @@ engines:
         template_work_area: shot_work_area_maya
       wtd-multi-resolutionSwitcherHigh:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.3}
+          type: git, version: v0.0.4}
         target_resolution: High
         target_resolution_shortname: hir
       wtd-multi-resolutionSwitcherLay:
+        # location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher',
+          # type: dev}
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.3}
+          type: git, version: v0.0.4}
         target_resolution: Lay
         target_resolution_shortname: lay
       wtd-multi-resolutionSwitcherLow:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.3}
+          type: git, version: v0.0.4}
         target_resolution: Low
         target_resolution_shortname: lor
-      wtd-multi-resolutionSwitcherTest:
-        location: {disabled: True, path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.2}
-        target_resolution: Tst
-        target_resolution_shortname: tst
     compatibility_dialog_min_version: 2015
     debug_logging: false
     location: {name: tk-maya, type: app_store, version: v0.4.3}

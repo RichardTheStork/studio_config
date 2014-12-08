@@ -63,7 +63,8 @@ class ScanSceneHook(Hook):
                     cam = str.split(str(par[0]),'|')[1]
                 if cam not in camList:
                     camList += [cam]
-                    selectetShots += [str.split(str(cam),'_')[-1]]
+                    noNamespace = str.split(str(cam),':')[0]
+                    selectetShots += [str.split(noNamespace,'_')[-1]]
             result = False
             if shotName in selectetShots:
                 result = True

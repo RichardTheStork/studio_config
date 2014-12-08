@@ -14,6 +14,7 @@ import maya.cmds as cmds
 
 from os import listdir
 from os.path import isfile, join
+import tempfile
 
 import tank
 from tank import Hook
@@ -354,9 +355,10 @@ class PublishHook(Hook):
 
 				sequenceList[-1]["audioList"] = audioList
 			
-			tmpFolder = "C:/temp"
-			if not os.path.exists(tmpFolder):
-				os.makedirs(tmpFolder)
+			# tmpFolder = "C:/temp"
+			# tmpFolder = tempfile.gettempdir()
+			# if not os.path.exists(tmpFolder):
+				# os.makedirs(tmpFolder)
 
 			scenePath = cmds.file(q=True,sceneName=True)
 			scene_template = tk.template_from_path(scenePath)
@@ -387,7 +389,8 @@ class PublishHook(Hook):
 				os.remove(Output)
 			subprocess.call('%s -i "%s" -ss "%s" -t "%s" -acodec copy "%s"' %(ffmpegPath,Input,time01,time02,Output))
 		def fixSound(sequenceList):
-			tmpFolder = "C:/temp"
+			# tmpFolder = "C:/temp"
+			tmpFolder = tempfile.gettempdir()
 			if not os.path.exists(tmpFolder):
 				os.makedirs(tmpFolder)
 			scenePath = cmds.file(q=True,sceneName=True)
