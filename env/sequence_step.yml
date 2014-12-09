@@ -421,19 +421,19 @@ engines:
         version_compare_ignore_fields: []
       wtd-multi-resolutionSwitcherHigh:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.5}
+          type: git, version: v0.0.6}
         target_resolution: High
         target_resolution_shortname: hir
       wtd-multi-resolutionSwitcherLay:
         # location: {path: 'W:\RTS\People\Mclaeys\GIT\wtd-multi-resolutionSwitcher',
           # type: dev}
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.5}
+          type: git, version: v0.0.6}
         target_resolution: Lay
         target_resolution_shortname: lay
       wtd-multi-resolutionSwitcherLow:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-resolutionSwitcher.git',
-          type: git, version: v0.0.5}
+          type: git, version: v0.0.6}
         target_resolution: Low
         target_resolution_shortname: lor
     compatibility_dialog_min_version: 2015
