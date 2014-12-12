@@ -33,6 +33,12 @@ keys:
         type: str
     Step:
         type: str
+    Task:
+        type: str
+        shotgun_entity_type: Task
+        # shotgun_field_name: sg_new_list_name
+        shotgun_field_name: content
+        filter_by: alphanumeric
     sg_asset_type:
         type: str
     Asset:
@@ -172,6 +178,7 @@ paths:
 
     # # The location of published maya files [_{name}Main]
     maya_seq_publish: '@seq_root_step/publish/maya/{Sequence}_{Step}_v{version}.ma'
+    maya_seq_positionlist: '@seq_root_step/publish/maya/{Sequence}_{Step}_v{version}.txt'
     maya_seq_mesh_alembic_cache: '@seq_root_Caches/publish/maya/[_{grp_name}]_v{version}.abc'
     maya_seq_mesh_MDD_cache: '@seq_root_Caches/publish/maya/[_{grp_name}]_v{version}.mdd'
     # maya_seq_mesh_PositionsList: '@seq_root_Caches/publish/maya/[_{Sequence}]_v{version}.txt'
@@ -179,17 +186,17 @@ paths:
     # outputs from the Shotgun Write Node for sequences
     # maya_seq_render_playblast: '@seq_render_root/work/maya/v{version}/{width}x{height}/{Shot}_{Step}[-{name}]_v{version}'
     maya_seq_playblast_publish_area: '@seq_render_root/publish/v{version}/playblast'
-    maya_seq_playblast_publish: '@maya_seq_playblast_publish_area/{width}x{height}/{Sequence}_{Step}_v{version}.{SEQ}.png'
-    maya_seq_playblast_current: '@seq_render_root/publish/_current/playblast/{width}x{height}/{Sequence}_{Step}.{SEQ}.png'
+    maya_seq_playblast_publish: '@maya_seq_playblast_publish_area/{width}x{height}/{Sequence}_{Step}_v{version}[_{eye}].{SEQ}.png'
+    maya_seq_playblast_current: '@seq_render_root/publish/_current/playblast/{width}x{height}/{Sequence}_{Step}[_{eye}].{SEQ}.png'
     
-    maya_seq_playblast_publish_currentshots_mov: '@seq_render_root/publish/_current/mov/{Shot}.mov'
+    maya_seq_playblast_publish_currentshots_mov: '@seq_render_root/publish/_current/mov/{Shot}[_{eye}].mov'
     maya_seq_playblast_publish_versionlist: '@seq_render_root/publish/_current/versions.txt'
     maya_seq_playblast_publish_concatlist: '@seq_render_root/publish/_current/concat.txt'
-    maya_seq_playblast_publish_mov: '@seq_render_root/publish/v{version}/{Sequence}_{Step}_v{version}.mov'
+    maya_seq_playblast_publish_mov: '@seq_render_root/publish/v{version}/{Sequence}_{Step}_v{version}[_{eye}].mov'
 
     maya_seq_playblast_work_area: '@seq_render_root/work/maya/v{version}/playblast'
-    maya_seq_playblast_work: '@maya_seq_playblast_work_area/{width}x{height}/{Sequence}[-{name}]_{Step}.{SEQ}.png'
-    maya_seq_playblast_work_mov: '@seq_render_root/work/{Sequence}[-{name}]_{Step}_v{version}.mov'
+    maya_seq_playblast_work: '@maya_seq_playblast_work_area/{width}x{height}/{Sequence}[-{name}]_{Step}[_{eye}].{SEQ}.png'
+    maya_seq_playblast_work_mov: '@seq_render_root/work/{Sequence}[-{name}]_{Step}_v{version}[_{eye}].mov'
     # review output
     maya_seq_playblast_review_mp4: '@seq_render_root/review/{Sequence}_{Step}_v{version}.mp4'
     
@@ -256,6 +263,7 @@ paths:
 
     # The location of published maya files [_{name}Main]
     maya_shot_publish: '@shot_root_step/publish/maya/{Shot}_{Step}_v{version}.ma'
+    maya_shot_positionlist: '@shot_data_root/positionlist/{Step}/maya/{Shot}[_{Task}]_{Step}_v{version}.txt'
     #maya_shot_mesh_alembic_cache: '@shot_root_Caches/publish/maya/[_{grp_name}]_v{version}.abc'
     maya_shot_mesh_alembic_cache: '@shot_root_Caches/publish/maya/{Shot}[-{name}]_{Step}_v{version}.abc'
     maya_shot_mesh_MDD_cache: '@shot_root_Caches/publish/maya/[_{grp_name}]_v{version}.mdd'
@@ -466,6 +474,7 @@ paths:
     # The location of published maya files
     # maya_asset_publish: '@asset_publish_area_maya/{Asset}[-{name}]_{Step}_v{version}.ma'
     maya_asset_publish: '@asset_publish_area_maya/{Asset}[-{name}][_{Resolution}]_{Step}_v{version}.ma'
+    maya_asset_positionlist: '@asset_publish_area_maya/{Asset}[-{name}][_{Resolution}]_{Step}_v{version}.txt'
 
     # maya render outputs for assets
     maya_asset_render_playblast: '@asset_render_root/work/maya/v{version}/{Asset}[-{name}]_v{version}'
