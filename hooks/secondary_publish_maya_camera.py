@@ -12,6 +12,7 @@ import time, datetime, os, subprocess
 import re, shutil
 import maya.cmds as cmds
 
+import sys
 from os import listdir
 from os.path import isfile, join
 import tempfile
@@ -177,7 +178,13 @@ class PublishHook(Hook):
 				command = os.path.normpath(ffmpeg_path + ' -f concat -r 24 -i '+mediaListFile+' -vcodec mjpeg -r 24 -qscale 1 -pix_fmt yuvj420p '+output + " -y")
 				command = str.replace(str(command), "\\" , "/")
 				#print command
-				value = subprocess.call(command, creationflags=CREATE_NO_WINDOW, shell=False)
+				if sys.platform == "linux2":
+					value = subprocess.call(command, shell=True)
+				elif sys.platform == "win32":
+					value = subprocess.call(command, creationflags=CREATE_NO_WINDOW, shell=False)
+				elif sys.platform == "darwin":
+					value = subprocess.call(command, shell=True)
+		
 				return output
 			else:
 				return None
@@ -270,7 +277,7 @@ class PublishHook(Hook):
 		ffmpeg = wtd_fw.import_module("pipeline.ffmpeg")
 		# ffmpeg.test()
 		
-		def _register_publish(path, name, sg_task, publish_version, tank_type, comment, thumbnail_path, context = None):
+		def _register_publish(path, name, sg_task, publish_version, tank_type, comment, thumbnail_path, context = None,tagList=[]):
 			"""
 			Helper method to register publish using the 
 			specified publish info.
@@ -279,13 +286,29 @@ class PublishHook(Hook):
 			# construct args:
 			args = {"tk": self.parent.tank,"sg_status_list": "cmpt","context": context,"comment": comment,"path": path,"name": name,"version_number": publish_version,"thumbnail_path": thumbnail_path,"sg_task": sg_task,"published_file_type":tank_type,"user": ctx.user,"created_by": ctx.user}
 			print "-------------------"
+			
+
+			sync_field_others = ["sg_sync_wtd","sg_sync_352","sg_sync_rakete"]
+			if ctx.user != None:
+				fields= ["sg_company"]
+				company = self.parent.shotgun.find_one("HumanUser",[['id', 'is',ctx.user["id"]]], fields)["sg_company"]
+				studios = { 'Walking the Dog': 'wtd', 'Studio Rakete': 'rakete', 'Bug': 'bug', 'RiseFX': 'risefx', 'Studio 352': '352' }
+				sync_field = "sg_sync_%s" % (studios[company])
+				
+				args[sync_field] = "cmpt"
+				
+				for other_sync in sync_field_others:
+					if other_sync != sync_field:
+						args[other_sync] = "wtg"
+
+
 			for a in args:
 				print a , args[a]
 			# print args
 			# register publish;
 			sg_data = tank.util.register_publish(**args)
 			print 'Register in shotgun done!'
-			
+			tk.shotgun.update('PublishedFile', sg_data['id'], {'tag_list':tagList})
 			return sg_data
 
 
@@ -355,11 +378,6 @@ class PublishHook(Hook):
 
 				sequenceList[-1]["audioList"] = audioList
 			
-			# tmpFolder = "C:/temp"
-			# tmpFolder = tempfile.gettempdir()
-			# if not os.path.exists(tmpFolder):
-				# os.makedirs(tmpFolder)
-
 			scenePath = cmds.file(q=True,sceneName=True)
 			scene_template = tk.template_from_path(scenePath)
 			audio_template = tk.templates["shot_published_audio"]
@@ -389,11 +407,12 @@ class PublishHook(Hook):
 				os.remove(Output)
 			subprocess.call('%s -i "%s" -ss "%s" -t "%s" -acodec copy "%s"' %(ffmpegPath,Input,time01,time02,Output))
 		def fixSound(sequenceList):
-			# tmpFolder = "C:/temp"
+			## tempfile function supposed to work on linux/ drawin
 			tmpFolder = tempfile.gettempdir()
 			if not os.path.exists(tmpFolder):
 				os.makedirs(tmpFolder)
 			scenePath = cmds.file(q=True,sceneName=True)
+			sceneName = str.split(str(scenePath),"/")[-1]
 			scene_template = tk.template_from_path(scenePath)
 			audio_template = tk.templates["shot_published_audio"]
 			flds = scene_template.get_fields(scenePath)
@@ -451,7 +470,7 @@ class PublishHook(Hook):
 						print "SKIPPED - are the folders already created on shotgun?????"
 						errors.append("SKIPPED - are the folders already created on shotgun?????")
 					if sg_task != []:
-						_register_publish(audioOutput,newAudioName,sg_task,flds['version'],"Audio", "publish","",ctx)
+						_register_publish(audioOutput,newAudioName,sg_task,flds['version'],"Audio", "publish","",ctx,["from maya : "+sceneName])
 					else:
 						print "SKIPPED - are the folders already created on shotgun?????"
 						errors.append("SKIPPED - are the folders already created on shotgun?????")
@@ -469,7 +488,7 @@ class PublishHook(Hook):
 		shotCams = []
 		unUsedCams = []
 
-		sides=["L","R"]
+		sides=["l","r"]
 
 		pbShots = []
 		CutInList = []
@@ -504,10 +523,15 @@ class PublishHook(Hook):
 		assets= self.parent.shotgun.find("Shot",filters,fields)
 		results = []
 		errors = []
-		ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
-		if "ffmpeg.exe" not in ffmpegPath:
-			ffmpegPath += "\\ffmpeg.exe"
-		ffmpegPath += '"'
+		if sys.platform == "linux2":
+			ffmpegPath = r'%s' % (os.getenv('FFMPEG','/rakete/tools/rakete/ffmpeg/lx64/ffmpeg'))
+		elif sys.platform == "win32":
+			ffmpegPath = '"'+os.environ.get('FFMPEG_PATH')
+			if "ffmpeg.exe" not in ffmpegPath:
+				ffmpegPath += "\\ffmpeg.exe"
+			ffmpegPath += '"'
+		elif sys.platform == "darwin":
+			ffmpegPath = r'%s' % (os.getenv('FFMPEG','/rakete/tools/rakete/ffmpeg/lx64/ffmpeg'))
 		soundFixList = checkSoundCut()
 		print soundFixList
 		fixSound(soundFixList)
@@ -612,6 +636,7 @@ class PublishHook(Hook):
 			RenderPath = ""
 			for pbShot in pbShots:
 				CutIn = CutInList[j]
+				parentShot = ""
 				if parentShotList[j] != []:
 					parentShot = str.split(parentShotList[j][0]['name'],"_")[-1]
 				j += 1
@@ -642,7 +667,7 @@ class PublishHook(Hook):
 					side = sides[s]
 					s += 1
 					if flds['Step'] == 's3d':
-						flds['eye'] = side
+						flds['eye'] = side.lower()
 
 					cmds.shot(pbShot, e=True, currentCamera=shotCam)
 					focal = cmds.getAttr(shotCam+'.focalLength')
@@ -691,10 +716,11 @@ class PublishHook(Hook):
 						print " NO PUBLISHED AUDIO FOUND"
 						for aud in [parentShot,pbShot]:
 							try:
-								audio = cmds.shot(pbShot,q=True,audio=True)
+								audio = cmds.shot(aud,q=True,audio=True)
 								shotAudio = '"'+cmds.getAttr(audio+".filename")+'"'
 								shotAudio = str.replace(str(shotAudio),"Z:/Richard The Stork/",'W:/RTS/')
 								print "used audio from maya :  ", shotAudio
+								break
 							except:
 								shotAudio = ''
 					print ffmpeg.ffmpegMakingMovie(inputFilePath=renderPathCurrent, outputFilePath=pbPathCurrentMov, audioPath=shotAudio, start_frame=int(shotStart),end_frame=int(shotEnd), framerate=24 , encodeOptions='libx264',ffmpegPath=ffmpegPath)
@@ -708,10 +734,11 @@ class PublishHook(Hook):
 				sides = ['']
 			for side in sides:
 				if flds['Step'] == 's3d':
-					flds['eye'] = side
+					flds['eye'] = side.lower()
 					
 				
 				RenderPath = pb_template.apply_fields(flds)
+				print RenderPath
 
 				for i in boundingboxObjsList:
 					cmds.setAttr(i+".overrideEnabled",True)
@@ -763,8 +790,14 @@ class PublishHook(Hook):
 						movName = str.split(str(mov),".")[0]
 						if ass['code'] == movName:
 							movList += [os.path.dirname(pbPathCurrentMov)+"/"+mov]
-
-
+				## need to keep that for s3d layout
+				if flds['Step'] == 's3d':
+					for ass in assetsOrdered:
+						for mov in os.listdir(os.path.dirname(pbPathCurrentMov)):
+							movName = str.split(str(mov),".")[0]
+							if "%s_%s" % (ass['code'], flds['eye']) == movName:
+								movList += [os.path.dirname(pbPathCurrentMov)+"/"+mov]
+								
 				makeSeqMov = True
 				if makeSeqMov:
 					if not os.path.exists(os.path.dirname(pbMovPath)):
@@ -780,6 +813,7 @@ class PublishHook(Hook):
 						SEQUENCE MOV and MP4 Creation
 					"""
 					print "Making mov and mp4: \n", pbMovPath, ' --- ', pbMp4Path
+					print movList
 					print combineMediaFiles(movList,pbMovPath,concatTxt,ffmpegPath)
 					
 					amount = 0
@@ -794,42 +828,58 @@ class PublishHook(Hook):
 					# UPLOAD MP4
 					# ----------------------------------------------
 					
-					upload = True
-					if upload:
-						user = self.parent.context.user
-						scenePath = cmds.file(q=True,sceneName=True)
-						ctx = self.parent.tank.context_from_path(scenePath)
-						fields = ['id']
-						sg_task = self.parent.shotgun.find("Task",[['content', 'is',ctx.step['name']],["entity",'is',ctx.entity]], fields)
-						
-						data = {'project': {'type':'Project','id':66},
-								'entity': {'type':'Sequence', 'id':int(sequence_id)},
-								'code': flds ['Sequence']+"_"+flds['Step']+"_v"+str('%03d' % (flds['version'])),
-								'sg_path_to_frames':os.path.dirname(RenderPath),
-								'sg_path_to_movie':pbMovPath,
-								'user': user,
-								'created_by': user,
-								'updated_by': user,
-								'sg_task': sg_task[0]
-								}
-
-						if not os.path.exists(os.path.dirname(pbMp4Path)):
-							os.makedirs(os.path.dirname(pbMp4Path))
-						
-						result = tk.shotgun.create('Version', data)
-						print "---> UPLOADING ",pbMp4Path
-						executed = tk.shotgun.upload("Version",result['id'],pbMp4Path,'sg_uploaded_movie')
-						print executed
+			upload = True
+			if upload:
+				user = self.parent.context.user
+				scenePath = cmds.file(q=True,sceneName=True)
+				ctx = self.parent.tank.context_from_path(scenePath)
+				fields = ['id']
+				sg_task = self.parent.shotgun.find("Task",[['content', 'is',ctx.step['name']],["entity",'is',ctx.entity]], fields)
+				RenderPath = re.sub('\_(l|r)\.','_%v.',RenderPath)
 				
-					# PUBLISH
-					if sg_task != []:
-						version = findLastVersion(os.path.dirname(pbMovPath))
-						#sg_task = sg_task[0]
-						print sg_task
-						_register_publish(pbMovPath,pbMovFile,sg_task,version,"Movie", "published playblast mov","",ctx)
-						print "PUBLISHED"
-					else:
-						print "SKIPPED PUBLISH"
+				data = {'project': {'type':'Project','id':66},
+						'entity': {'type':'Sequence', 'id':int(sequence_id)},
+						'code': flds ['Sequence']+"_"+flds['Step']+"_v"+str('%03d' % (flds['version'])),
+						'sg_path_to_frames': re.sub('\.[0-9]{4}\.','.%04d.', (RenderPath)),
+						'sg_path_to_movie':re.sub('\_(l|r)\.','_%v.',pbMovPath),
+						'sg_version_type': 'publish',
+						'user': user,
+						'created_by': user,
+						'updated_by': user,
+						'sg_task': sg_task[0]
+						'sg_version_type': 'publish',
+						}
+
+				if not os.path.exists(os.path.dirname(pbMp4Path)):
+					os.makedirs(os.path.dirname(pbMp4Path))
+				
+				findVersion = self.parent.shotgun.find_one('Version', 
+														[['code', 'is', flds ['Sequence']+"_"+flds['Step']+"_v"+str('%03d' % (flds['version']))],
+														 ['sg_version_type', 'is', 'publish'],
+														 ['sg_task', 'is', sg_task]
+														] , 
+														['sg_path_to_movie','sg_path_to_frames', 'id']
+														)
+				
+				if not findVersion:
+					result = tk.shotgun.create('Version', data)
+				else:
+					result = tk.update('Version', findVersion.get('id'),data)
+				print "---> UPLOADING ",pbMp4Path
+				executed = tk.shotgun.upload("Version",result['id'],pbMp4Path,'sg_uploaded_movie')
+				print executed
+		
+			# PUBLISH
+			if sg_task != []:
+				version = tank.util.find_publish(tk,[primary_publish_path],fields=['version'])
+				version = version.get(primary_publish_path).get('version')
+				#version = findLastVersion(os.path.dirname(pbMovPath))
+				#sg_task = sg_task[0]
+				print sg_task
+				_register_publish(re.sub('\_(l|r)\.','_%v.',pbMovPath),re.sub('\_(l|r)\.','_%v.',pbMovFile),sg_task,version,"Movie", "published playblast mov","",ctx)
+				print "PUBLISHED"
+			else:
+				print "SKIPPED PUBLISH"
 				
 					
 				# print "TODO : make mov of whole sequence with audio"
