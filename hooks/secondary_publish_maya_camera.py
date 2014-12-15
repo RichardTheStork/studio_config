@@ -511,6 +511,9 @@ class PublishHook(Hook):
 		pbArea_template = tk.templates["maya_seq_playblast_publish_area"]
 		audio_template = tk.templates["shot_published_audio"]
 		mov_template = tk.templates["maya_seq_playblast_publish_currentshots_mov"]
+		mov_shot_template = tk.templates["maya_shot_playblast_publish_currentshots_mov"]
+		mp4_shot_template = tk.templates["maya_shot_playblast_publish_currentshots_mp4"]
+		
 		concatMovTxt = tk.templates["maya_seq_playblast_publish_concatlist"]
 		pbMov = tk.templates["maya_seq_playblast_publish_mov"]
 		pbMp4 = tk.templates["maya_seq_playblast_review_mp4"]
@@ -676,11 +679,13 @@ class PublishHook(Hook):
 					pbPath = str.split(str(RenderPath),".")[0]
 					renderPathCurrent = pb_template_current.apply_fields(flds)
 					pbPathCurrent = str.split(str(renderPathCurrent),".")[0]
-					if not os.path.exists(os.path.dirname(pbPathCurrent)):
-						os.makedirs(os.path.dirname(pbPathCurrent))
 					pbPathCurrentMov = mov_template.apply_fields(flds)
-					if not os.path.exists(os.path.dirname(pbPathCurrentMov)):
-						os.makedirs(os.path.dirname(pbPathCurrentMov))
+					pbPathCurrentMovShot = mov_shot_template.apply_fields(flds)
+					pbPathCurrentMp4Shot = mp4_shot_template.apply_fields(flds)
+					for pathToMake in [pbPathCurrent,pbPathCurrentMov,pbPathCurrentMovShot,pbPathCurrentMp4Shot]:
+						if not os.path.exists(os.path.dirname(pathToMake)):
+							#os.makedirs(os.path.dirname(pathToMake))
+							self.parent.ensure_folder_exists(os.path.dirname(pathToMake))
 
 					# report progress:
 					progress_cb(0, "Publishing", task)
@@ -724,6 +729,8 @@ class PublishHook(Hook):
 							except:
 								shotAudio = ''
 					print ffmpeg.ffmpegMakingMovie(inputFilePath=renderPathCurrent, outputFilePath=pbPathCurrentMov, audioPath=shotAudio, start_frame=int(shotStart),end_frame=int(shotEnd), framerate=24 , encodeOptions='libx264',ffmpegPath=ffmpegPath)
+					shutil.copy2(pbPathCurrentMov, pbPathCurrentMovShot)
+					ffmpeg.ffmpegMakingMovie(pbPathCurrentMov,pbPathCurrentMp4Shot,encodeOptions="libx264",ffmpegPath=ffmpegPath)
 				# end_frame=shotEnd
 				cmds.shot(pbShot, e=True, currentCamera=previewCam)
 			
@@ -847,7 +854,6 @@ class PublishHook(Hook):
 						'created_by': user,
 						'updated_by': user,
 						'sg_task': sg_task[0]
-						'sg_version_type': 'publish',
 						}
 
 				if not os.path.exists(os.path.dirname(pbMp4Path)):
