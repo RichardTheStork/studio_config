@@ -189,6 +189,16 @@ class PublishHook(Hook):
 			else:
 				return None
 		
+		def findLatestPublish(seq,step):
+			pub_files = self.parent.shotgun.find('PublishedFile',[['name', 'is',seq+"_"+step]],fields=['version_number','path'])
+			highest = 0
+			for pub in 	pub_files:
+				print pub
+				ver = int(pub["version_number"])
+				if  ver > highest:
+					highest = ver
+			return highest
+		
 		def findLastVersion(FolderPath,returnFile=False,returnFilePath=False):
 			if os.path.exists(FolderPath):
 				fileList=os.listdir(FolderPath)
@@ -877,9 +887,10 @@ class PublishHook(Hook):
 		
 			# PUBLISH
 			if sg_task != []:
-				version = tank.util.find_publish(tk,[primary_publish_path],fields=['version'])
-				version = version.get(primary_publish_path).get('version')
+				# version = tank.util.find_publish(tk,[primary_publish_path],fields=['version'])
+				# version = version.get(primary_publish_path).get('version')
 				#version = findLastVersion(os.path.dirname(pbMovPath))
+				version = findLatestPublish(flds['Sequence'],flds['Step'])
 				#sg_task = sg_task[0]
 				print sg_task
 				_register_publish(re.sub('\_(l|r)\.','_%v.',pbMovPath),re.sub('\_(l|r)\.','_%v.',pbMovFile),sg_task,version,"Movie", "published playblast mov","",ctx)
