@@ -36,8 +36,8 @@ keys:
     Task:
         type: str
         shotgun_entity_type: Task
-        # shotgun_field_name: sg_new_list_name
-        shotgun_field_name: content
+        shotgun_field_name: sg_short_name
+        # shotgun_field_name: content
         filter_by: alphanumeric
     sg_asset_type:
         type: str
@@ -281,6 +281,8 @@ paths:
     # maya_shot_render_review_seq: '@shot_render_root/review/images/{name}/v{version}/{width}x{height}/{Shot}_{name}_{channel}_v{version}.{iteration}.{SEQ}.exr'
     # maya_shot_render_pub: '@shot_render_root/publish/elements/{name}/v{version}/{width}x{height}/{Shot}_{name}_{channel}_v{version}.{SEQ}.exr'
     
+    maya_shot_playblast_publish_currentshots_mov: '@shot_render_root/publish/_current/mov/{Shot}[_{eye}].mov'
+    maya_shot_playblast_publish_currentshots_mp4: '@shot_render_root/review/_current/mp4/{Shot}[_{eye}].mp4'
     maya_shot_playblast_publish_area: '@shot_render_root/publish/maya/v{version}/playblast'
     maya_shot_playblast_publish: '@maya_shot_playblast_publish_area/{width}x{height}/{Shot}_{Step}.{SEQ}.png'
     
