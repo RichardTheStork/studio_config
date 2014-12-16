@@ -343,7 +343,8 @@ engines:
         sg_entity_type_filters: {}
         sg_entity_types: [Sequence, Shot, Asset]
         sg_task_filters: []
-        task_extra_display_fields: [sg_task_order]
+        # task_extra_display_fields: [sg_task_order]
+        task_extra_display_fields: []
         template_publish: maya_asset_publish
         template_publish_area: asset_publish_area_maya
         template_work: maya_asset_work
@@ -387,8 +388,25 @@ engines:
       wtd-multi-turntable:
         location: {path: 'https://github.com/RichardTheStork/wtd-multi-turntable.git',
           type: git, version: v0.0.6}
+      tk-multi-sanitycheck:
+        checks:
+        - {blockPublish: true, source: mayaDefaultChecks, type: CheckUnknownNodes}
+        - {blockPublish: false, source: mayaDefaultChecks, type: CheckCleanHierarchy}
+        - {blockPublish: false, source: mayaDefaultChecks, type: CheckMeshReferenced}
+        - {blockPublish: true, source: mayaDefaultChecks, type: CheckNamespace}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckShotStartEnd}
+        - {blockPublish: false, source: mayaRicChecks, type: CheckSoundOffset}
+        - {blockPublish: false, source: mayaRicChecks, type: CheckPrefixLocator}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckNameLocatorShapes}
+        - {blockPublish: true, source: mayaRicChecks, type: UnInstanceObjs}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckIfEndNumbers}
+        # - {blockPublish: true, source: mayaRicChecks, type: CheckUniqueNames}
+        # location: {path: 'https://github.com/RichardTheStork/tk-multi-sanitycheck',
+          # type: git, version: v0.0.0}
+        location: {path: 'W:\RTS\People\Tdelbergue\Git\tk-multi-sanitycheck',
+          type: dev}
     compatibility_dialog_min_version: 2015
-    debug_logging: false
+    debug_logging: true
     location: {name: tk-maya, type: app_store, version: v0.4.4}
     menu_favourites:
     - {app_instance: tk-multi-workfiles, name: Shotgun File Manager...}
