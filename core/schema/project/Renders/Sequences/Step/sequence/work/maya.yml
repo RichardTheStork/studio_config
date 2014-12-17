@@ -1,0 +1,5 @@
+# type of content
+type: "static"
+
+# only create this folder for maya
+defer_creation: "tk-maya"

@@ -10,6 +10,9 @@
 
 # the type of dynamic content
 type: "shotgun_step"
+
+#filters: [ { "path": "short_name", "relation": "in", "values": [ "sty" ] } ]
+
 create_with_parent: false
 # the shotgun field to use for the folder name
 name: "short_name"
