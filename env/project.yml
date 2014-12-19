@@ -121,6 +121,38 @@ engines:
       tk-multi-about: '@about'
       tk-multi-screeningroom: '@launch_screeningroom'
       tk-multi-workfiles: '@workfiles-launch-at-startup'
+      tk-multi-loader2:
+        action_mappings:
+          Alembic Cache: [reference]
+          Audio: [reference]
+          Maya Scene: [referenceWithRtsLocator, referenceWithLocator, reference, openUntitled, importNoNs]
+          Position List: [poslist_as_references, poslist_update, poslist_update_selected]
+          Photoshop Image: [texture_node, udim_texture_node]
+          Rendered Image: [texture_node]
+        actions_hook: '{config}/tk-maya_actions.py'
+        download_thumbnails: true
+        entities:
+        - caption: Assets
+          entity_type: Asset
+          filters:
+          - [project, is, '{context.project}']
+          hierarchy: [sg_asset_type, code]
+        - caption: Shots
+          entity_type: Shot
+          filters:
+          - [project, is, '{context.project}']
+          hierarchy: [sg_sequence, code]
+        - caption: My Tasks
+          entity_type: Task
+          filters:
+          - [task_assignees, is, '{context.user}']
+          - [project, is, '{context.project}']
+          hierarchy: [entity, content]
+        filter_publishes_hook: '{self}/filter_publishes.py'
+        location: {name: tk-multi-loader2, type: app_store, version: v1.3.1}
+        menu_name: Load
+        publish_filters: []
+        title_name: Loader
       wtd-multi-shotloader:
         location: {disabled: true, path: 'W:\RTS\People\xander\git\wtd-multi-shotloader',
           type: dev}
