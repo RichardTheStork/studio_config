@@ -295,7 +295,9 @@ engines:
         - {blockPublish: true, source: mayaRicChecks, type: CheckShotStartEnd}
         - {blockPublish: false, source: mayaRicChecks, type: CheckSoundOffset}
         - {blockPublish: true, source: mayaDefaultChecks, type: CheckLockAttrs}
-        location: {path: 'W:\RTS\People\Dtassenoy\tk-multi-sanitycheck',
+        - {blockPublish: true, source: mayaRicChecks, type: checkAudioToShotCuts}
+        - {blockPublish: true, source: mayaRicChecks, type: audioPathCheck}
+        location: {path: 'W:\RTS\People\xander\tk-multi-sanitycheck',
           type: dev}
       tk-maya-breakdown:
         hook_multi_update: default

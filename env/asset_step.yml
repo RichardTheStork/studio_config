@@ -391,16 +391,17 @@ engines:
       tk-multi-sanitycheck:
         checks:
         - {blockPublish: true, source: mayaDefaultChecks, type: CheckUnknownNodes}
-        - {blockPublish: false, source: mayaDefaultChecks, type: CheckCleanHierarchy}
-        - {blockPublish: false, source: mayaDefaultChecks, type: CheckMeshReferenced}
-        - {blockPublish: true, source: mayaDefaultChecks, type: CheckNamespace}
-        - {blockPublish: true, source: mayaRicChecks, type: CheckShotStartEnd}
-        - {blockPublish: false, source: mayaRicChecks, type: CheckSoundOffset}
-        - {blockPublish: false, source: mayaRicChecks, type: CheckPrefixLocator}
-        - {blockPublish: true, source: mayaRicChecks, type: CheckNameLocatorShapes}
+        # - {blockPublish: false, source: mayaDefaultChecks, type: CheckCleanHierarchy}
+        # - {blockPublish: false, source: mayaDefaultChecks, type: CheckMeshReferenced}
+        # - {blockPublish: true, source: mayaDefaultChecks, type: CheckNamespace}
+        # - {blockPublish: true, source: mayaRicChecks, type: CheckShotStartEnd}
+        # - {blockPublish: false, source: mayaRicChecks, type: CheckSoundOffset}
         - {blockPublish: true, source: mayaRicChecks, type: UnInstanceObjs}
+        - {blockPublish: false, source: mayaRicChecks, type: CheckPrefixLocator}
         - {blockPublish: true, source: mayaRicChecks, type: CheckIfEndNumbers}
-        # - {blockPublish: true, source: mayaRicChecks, type: CheckUniqueNames}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckNameLocatorShapes}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckUniqueNames}
+        - {blockPublish: true, source: mayaRicChecks, type: CheckRealReferences}
         # location: {path: 'https://github.com/RichardTheStork/tk-multi-sanitycheck',
           # type: git, version: v0.0.0}
         location: {path: 'W:\RTS\People\Tdelbergue\Git\tk-multi-sanitycheck',

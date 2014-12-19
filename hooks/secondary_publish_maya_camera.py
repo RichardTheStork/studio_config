@@ -297,19 +297,21 @@ class PublishHook(Hook):
 			args = {"tk": self.parent.tank,"sg_status_list": "cmpt","context": context,"comment": comment,"path": path,"name": name,"version_number": publish_version,"thumbnail_path": thumbnail_path,"sg_task": sg_task,"published_file_type":tank_type,"user": ctx.user,"created_by": ctx.user}
 			print "-------------------"
 			
+			postPubArgs = {}
 
-			sync_field_others = ["sg_sync_wtd","sg_sync_352","sg_sync_rakete"]
+			
 			if ctx.user != None:
 				fields= ["sg_company"]
 				company = self.parent.shotgun.find_one("HumanUser",[['id', 'is',ctx.user["id"]]], fields)["sg_company"]
 				studios = { 'Walking the Dog': 'wtd', 'Studio Rakete': 'rakete', 'Bug': 'bug', 'RiseFX': 'risefx', 'Studio 352': '352' }
 				sync_field = "sg_sync_%s" % (studios[company])
 				
-				args[sync_field] = "cmpt"
+				postPubArgs[sync_field] = "cmpt"
 				
+				sync_field_others = ["sg_sync_wtd","sg_sync_352","sg_sync_rakete"]
 				for other_sync in sync_field_others:
 					if other_sync != sync_field:
-						args[other_sync] = "wtg"
+						postPubArgs[other_sync] = "wtg"
 
 
 			for a in args:
@@ -318,7 +320,10 @@ class PublishHook(Hook):
 			# register publish;
 			sg_data = tank.util.register_publish(**args)
 			print 'Register in shotgun done!'
-			tk.shotgun.update('PublishedFile', sg_data['id'], {'tag_list':tagList})
+
+			postPubArgs['tag_list'] = tagList
+			tk.shotgun.update('PublishedFile', sg_data['id'], postPubArgs)
+			
 			return sg_data
 
 
